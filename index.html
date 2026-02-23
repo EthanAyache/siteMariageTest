@@ -8,7 +8,7 @@
     <style>
         body {
             margin: 0;
-            padding: 0;
+            padding: 20px;
             background-color: #ffffff;
             color: #D4AF37; /* Couleur Or */
             font-family: 'Lato', sans-serif;
@@ -16,15 +16,15 @@
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            height: 100vh;
+            min-height: 100vh;
             text-align: center;
             /* Remplacez 'votre-image.jpg' par le nom exact de votre fichier dans le dossier image */
-            background-image: url('image/fond.png');
+            background-image: url('');
+            background-color: #f3eeeb;
             background-repeat: no-repeat;
             background-size: cover;
             background-position: center;
-            margin: 0;
-            font-family: Arial, sans-serif;
+            box-sizing: border-box;
         }
         h1 {
             font-family: 'Great Vibes', cursive;
@@ -96,6 +96,51 @@
             background-color: #D4AF37;
             color: #ffffff;
         }
+
+        /* Media Queries pour tablettes et mobiles */
+        @media screen and (max-width: 768px) {
+            h1 {
+                font-size: 3.5rem;
+            }
+            #countdown {
+                gap: 1.5rem;
+                margin-bottom: 3rem;
+            }
+            .number {
+                font-size: 2.5rem;
+            }
+        }
+
+        @media screen and (max-width: 480px) {
+            h1 {
+                font-size: 2.5rem;
+            }
+            .date {
+                font-size: 1rem;
+                margin-bottom: 2rem;
+            }
+            #countdown {
+                gap: 0.5rem;
+                margin-bottom: 2rem;
+            }
+            .time-unit {
+                min-width: auto;
+            }
+            .number {
+                font-size: 1.8rem;
+            }
+            .label {
+                font-size: 0.7rem;
+            }
+            .enter-btn {
+                padding: 12px 30px;
+                font-size: 0.9rem;
+            }
+            .music-btn {
+                padding: 8px 15px;
+                font-size: 0.8rem;
+            }
+        }
     </style>
 </head>
 <body>
@@ -114,7 +159,7 @@
 
     <!-- Remplacez 'musique.mp3' par le nom de votre fichier audio -->
     <audio id="bgMusic" loop>
-        <source src="musiqueM.mp3" type="audio/mpeg">
+        <source src="audio/musiqueM.mp3" type="audio/mpeg">
     </audio>
     <button id="musicBtn" class="music-btn">Lecture 🎵</button>
 
@@ -141,14 +186,21 @@
         const music = document.getElementById("bgMusic");
         const btn = document.getElementById("musicBtn");
 
-        // Tente de lancer la musique automatiquement (peut être bloqué par le navigateur)
-        music.play().then(() => {
+        // Fonction pour lancer la musique au premier clic sur la page
+        function startMusic() {
+            music.play();
             btn.innerHTML = "Pause ⏸";
-        }).catch(() => {
-            btn.innerHTML = "Lecture 🎵";
-        });
+            document.removeEventListener('click', startMusic);
+        }
 
-        btn.addEventListener("click", () => {
+        // Ajoute l'écouteur sur tout le document
+        document.addEventListener('click', startMusic);
+
+        btn.addEventListener("click", (e) => {
+            // Empêche le double déclenchement et nettoie l'écouteur global
+            e.stopPropagation();
+            document.removeEventListener('click', startMusic);
+            
             if (music.paused) {
                 music.play();
                 btn.innerHTML = "Pause ⏸";
@@ -158,5 +210,8 @@
             }
         });
     </script>
+    <p style="font-size:0.75rem; letter-spacing:2px; color:#bfa05f; opacity:0.7; margin-top:2rem;">
+    ♪ Cliquez n'importe où pour activer la musique
+</p>
 </body>
 </html>
