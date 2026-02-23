@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bienvenue à Notre Mariage</title>
+    <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Lato:wght@300;400&display=swap" rel="stylesheet">
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #ffffff;
+            color: #D4AF37; /* Couleur Or */
+            font-family: 'Lato', sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            text-align: center;
+        }
+        h1 {
+            font-family: 'Great Vibes', cursive;
+            font-size: 5rem;
+            margin: 0;
+            font-weight: normal;
+            line-height: 1.2;
+        }
+        .date {
+            font-size: 1.2rem;
+            margin-top: 1rem;
+            margin-bottom: 3rem;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            color: #bfa05f;
+        }
+        #countdown {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            margin-bottom: 4rem;
+        }
+        .time-unit {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-width: 80px;
+        }
+        .number {
+            font-size: 3rem;
+            font-weight: 300;
+        }
+        .label {
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-top: 0.5rem;
+        }
+        .enter-btn {
+            text-decoration: none;
+            color: #D4AF37;
+            border: 1px solid #D4AF37;
+            padding: 15px 50px;
+            font-size: 1rem;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            transition: all 0.3s ease;
+        }
+        .enter-btn:hover {
+            background-color: #D4AF37;
+            color: #ffffff;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Salomée & Ethan</h1>
+    <div class="date">20 novembre 2026</div>
+
+    <div id="countdown">
+        <div class="time-unit"><span class="number" id="days">00</span><span class="label">Jours</span></div>
+        <div class="time-unit"><span class="number" id="hours">00</span><span class="label">Heures</span></div>
+        <div class="time-unit"><span class="number" id="minutes">00</span><span class="label">Minutes</span></div>
+        <div class="time-unit"><span class="number" id="seconds">00</span><span class="label">Secondes</span></div>
+    </div>
+
+    <a href="accueil.html" class="enter-btn">Entrer sur le site</a>
+
+    <script>
+        // Mettez à jour la date de votre mariage ici (Format: Mois Jour, Année Heure:Minute:Seconde)
+        const weddingDate = new Date("november 20, 2026 14:00:00").getTime();
+
+        const timer = setInterval(() => {
+            const now = new Date().getTime();
+            const distance = weddingDate - now;
+
+            if (distance < 0) {
+                clearInterval(timer);
+                document.getElementById("countdown").innerHTML = "<div>C'est le grand jour !</div>";
+                return;
+            }
+            document.getElementById("days").innerText = Math.floor(distance / (1000 * 60 * 60 * 24));
+            document.getElementById("hours").innerText = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            document.getElementById("minutes").innerText = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+            document.getElementById("seconds").innerText = Math.floor((distance % (1000 * 60)) / 1000);
+        }, 1000);
+    </script>
+</body>
+</html>
