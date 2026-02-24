@@ -157,12 +157,6 @@
 
     <a href="accueil.html" class="enter-btn">Entrer sur le site</a>
 
-    <!-- Remplacez 'musique.mp3' par le nom de votre fichier audio -->
-    <audio id="bgMusic" loop>
-        <source src="audio/musiqueM.mp3" type="audio/mpeg">
-    </audio>
-    <button id="musicBtn" class="music-btn">Lecture 🎵</button>
-
     <script>
         // Mettez à jour la date de votre mariage ici (Format: Mois Jour, Année Heure:Minute:Seconde)
         const weddingDate = new Date("november 20, 2026 14:00:00").getTime();
@@ -181,37 +175,6 @@
             document.getElementById("minutes").innerText = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
             document.getElementById("seconds").innerText = Math.floor((distance % (1000 * 60)) / 1000);
         }, 1000);
-
-        // Gestion de la musique
-        const music = document.getElementById("bgMusic");
-        const btn = document.getElementById("musicBtn");
-
-        // Fonction pour lancer la musique au premier clic sur la page
-        function startMusic() {
-            music.play();
-            btn.innerHTML = "Pause ⏸";
-            document.removeEventListener('click', startMusic);
-        }
-
-        // Ajoute l'écouteur sur tout le document
-        document.addEventListener('click', startMusic);
-
-        btn.addEventListener("click", (e) => {
-            // Empêche le double déclenchement et nettoie l'écouteur global
-            e.stopPropagation();
-            document.removeEventListener('click', startMusic);
-            
-            if (music.paused) {
-                music.play();
-                btn.innerHTML = "Pause ⏸";
-            } else {
-                music.pause();
-                btn.innerHTML = "Lecture 🎵";
-            }
-        });
     </script>
-    <p style="font-size:0.75rem; letter-spacing:2px; color:#bfa05f; opacity:0.7; margin-top:2rem;">
-    ♪ Cliquez n'importe où pour activer la musique
-</p>
 </body>
 </html>

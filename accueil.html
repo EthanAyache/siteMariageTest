@@ -1,12 +1,79 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="fr">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>Salomée & Ethan - Accueil</title>
+    <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Lato:wght@300;400&display=swap" rel="stylesheet">
+    <style>
+        body {
+            margin: 0;
+            padding: 20px;
+            background-color: #f3eeeb;
+            color: #D4AF37;
+            font-family: 'Lato', sans-serif;
+            text-align: center;
+        }
+        h1 {
+            font-family: 'Great Vibes', cursive;
+            font-size: 4rem;
+            margin-top: 20px;
+        }
+        .music-btn {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background-color: transparent;
+            color: #D4AF37;
+            border: 1px solid #D4AF37;
+            padding: 10px 20px;
+            cursor: pointer;
+            font-family: 'Lato', sans-serif;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            z-index: 100;
+            transition: all 0.3s ease;
+        }
+        .music-btn:hover {
+            background-color: #D4AF37;
+            color: #ffffff;
+        }
+    </style>
 </head>
 <body>
     <h1>Salomée & Ethan</h1>
     
+    <!-- Lecteur audio avec autoplay pour lancer la musique dès l'arrivée -->
+    <audio id="bgMusic" autoplay loop>
+        <source src="audio/musiqueM.mp3" type="audio/mpeg">
+    </audio>
+    
+    <button id="musicBtn" class="music-btn">Pause ⏸</button>
+
+    <script>
+        const music = document.getElementById("bgMusic");
+        const btn = document.getElementById("musicBtn");
+
+        // Tente de lancer la musique si l'autoplay a été bloqué par le navigateur
+        music.play().catch(error => {
+            console.log("Lecture automatique bloquée par le navigateur, attente d'interaction.");
+            btn.innerHTML = "Lecture 🎵";
+        });
+
+        btn.addEventListener("click", () => {
+            if (music.paused) {
+                music.play();
+                btn.innerHTML = "Pause ⏸";
+            } else {
+                music.pause();
+                btn.innerHTML = "Lecture 🎵";
+            }
+        });
+
+        // Sécurité supplémentaire : lance la musique au premier clic sur cette page si elle ne s'est pas lancée
+        document.body.addEventListener('click', () => {
+            if(music.paused) music.play();
+        }, { once: true });
+    </script>
 </body>
 </html>
