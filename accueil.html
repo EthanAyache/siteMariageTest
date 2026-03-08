@@ -8,22 +8,125 @@
     <style>
         body {
             margin: 0;
-            padding: 20px;
+            padding: 0;
             background-color: #f3eeeb;
-            color: #D4AF37;
+            color: #4a4a4a;
             font-family: 'Lato', sans-serif;
             text-align: center;
+            overflow-x: hidden;
+        }
+        h1, h2, h3 {
+            color: #D4AF37;
+            font-weight: normal;
+        }
+        h1, .nav-logo {
+            font-family: 'Great Vibes', cursive;
         }
         h1 {
+            font-size: 3.5rem;
+            margin: 1rem 0;
+        }
+        h2 {
             font-family: 'Great Vibes', cursive;
-            font-size: 4rem;
-            margin-top: 20px;
+            font-size: 3rem;
+            margin-bottom: 1.5rem;
+        }
+        /* Navigation */
+        nav {
+            background-color: #ffffff;
+            padding: 1rem 2rem;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .nav-logo {
+            font-size: 1.8rem;
+            color: #D4AF37;
+        }
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+        }
+        .nav-links a {
+            text-decoration: none;
+            color: #4a4a4a;
+            text-transform: uppercase;
+            font-size: 0.9rem;
+            letter-spacing: 1px;
+            transition: color 0.3s;
+        }
+        .nav-links a:hover {
+            color: #D4AF37;
+        }
+        /* Sections */
+        section {
+            padding: 4rem 1rem;
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+        .hero {
+            min-height: 80vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 2rem;
+        }
+        .hero img {
+            max-width: 100%;
+            height: auto;
+            max-height: 350px;
+            margin-bottom: 1rem;
+        }
+        .timeline {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+        .event-card {
+            background: #fff;
+            padding: 2rem;
+            border-radius: 8px;
+            width: 250px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            transition: transform 0.3s;
+        }
+        .event-card:hover {
+            transform: translateY(-5px);
+        }
+        .event-time {
+            display: block;
+            font-size: 1.2rem;
+            color: #D4AF37;
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+        }
+        .btn-rsvp {
+            display: inline-block;
+            background-color: #D4AF37;
+            color: #fff;
+            padding: 15px 40px;
+            border-radius: 30px;
+            text-decoration: none;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-top: 2rem;
+            transition: background 0.3s;
+        }
+        .btn-rsvp:hover {
+            background-color: #bfa05f;
         }
         .music-btn {
             position: fixed;
-            top: 20px;
+            bottom: 20px;
             right: 20px;
-            background-color: transparent;
+            background-color: #fff;
             color: #D4AF37;
             border: 1px solid #D4AF37;
             padding: 10px 20px;
@@ -31,17 +134,219 @@
             font-family: 'Lato', sans-serif;
             text-transform: uppercase;
             letter-spacing: 1px;
-            z-index: 100;
+            z-index: 1001;
+            border-radius: 50px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
             transition: all 0.3s ease;
         }
         .music-btn:hover {
             background-color: #D4AF37;
             color: #ffffff;
         }
+        
+        /* Styles Formulaire RSVP */
+        .rsvp-form {
+            text-align: left;
+            max-width: 600px;
+            margin: 0 auto;
+            font-style: italic;
+        }
+        .form-row {
+            margin-bottom: 2rem;
+        }
+        .form-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: #D4AF37;
+            font-size: 1.1rem;
+        }
+        input[type="text"], select {
+            width: 100%;
+            padding: 10px 0;
+            background: transparent;
+            border: none;
+            border-bottom: 1px solid #D4AF37;
+            font-family: 'Lato', sans-serif;
+            font-style: italic;
+            font-size: 1rem;
+            color: #4a4a4a;
+            outline: none;
+            box-sizing: border-box;
+        }
+        input[type="text"]::placeholder {
+            color: #a0a0a0;
+        }
+        textarea {
+            width: 100%;
+            padding: 10px 0;
+            background: transparent;
+            border: none;
+            border-bottom: 1px solid #D4AF37;
+            font-family: 'Lato', sans-serif;
+            font-style: italic;
+            font-size: 1rem;
+            color: #4a4a4a;
+            outline: none;
+            box-sizing: border-box;
+            resize: vertical;
+            min-height: 80px;
+        }
+        textarea::placeholder {
+            color: #a0a0a0;
+        }
+        .radio-group {
+            display: flex;
+            gap: 2rem;
+            margin-top: 0.5rem;
+            align-items: center;
+        }
+        .radio-group label {
+            cursor: pointer;
+        }
+        .hidden {
+            display: none;
+            animation: fadeIn 0.5s;
+        }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        .error-message {
+            color: red;
+            font-size: 0.85rem;
+            margin-top: 0.5rem;
+            display: none;
+        }
+        
+        
+        @media (max-width: 768px) {
+            nav {
+                flex-direction: column;
+                padding: 1rem;
+            }
+            .nav-links {
+                margin-top: 1rem;
+                gap: 1rem;
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+            h1 { font-size: 2.5rem; }
+            .hero img { max-height: 250px; }
+        }
     </style>
 </head>
 <body>
-    <h1>Salomée & Ethan</h1>
+    <!-- Navigation -->
+    <nav>
+        <div class="nav-logo">Salomée & Ethan</div>
+        <div class="nav-links">
+            <a href="#accueil">Accueil</a>
+            <a href="#programme">Programme</a>
+            <a href="#infos">Infos</a>
+            <a href="#rsvp">R.S.V.P</a>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <div class="hero" id="accueil">
+        <img src="image/alliancePrenom.png" alt="Alliances">
+        <h1>Salomée & Ethan</h1>
+        <p style="text-transform: uppercase; letter-spacing: 3px;">20 Février 2027</p>
+    </div>
+
+    <!-- Programme Section -->
+    <section id="programme">
+        <h2>Le Programme</h2>
+        <div class="timeline">
+            <div class="event-card">
+                <span class="event-time">14:00</span>
+                <h3>Cérémonie</h3>
+                <p>Synagogue de la Victoire</p>
+            </div>
+            <div class="event-card">
+                <span class="event-time">18:00</span>
+                <h3>Cocktail</h3>
+                <p>Jardins du Pavillon</p>
+            </div>
+            <div class="event-card">
+                <span class="event-time">20:30</span>
+                <h3>Dîner & Fête</h3>
+                <p>Salle de Réception</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Infos / RSVP Section -->
+    <section id="rsvp" style="background-color: #fdfbf7; width: 100%; max-width: none;">
+        <div style="max-width: 800px; margin: 0 auto;">
+            <h2>Réponse Souhaitée</h2>
+            <p style="margin-bottom: 3rem;">Nous serions ravis de vous compter parmi nous.</p>
+            
+            <form class="rsvp-form" id="weddingForm" action="https://formsubmit.co/ayacheethan@gmail.com" method="POST">
+                <input type="hidden" name="_subject" value="Nouveau RSVP - Mariage Salomée & Ethan">
+                <input type="hidden" name="_template" value="table">
+
+                <!-- Identité -->
+                <div class="form-row">
+                    <input type="text" name="nom" id="nom" placeholder="Nom de famille *">
+                    <div id="error-nom" class="error-message">Merci de rentrer votre nom de famille</div>
+                </div>
+                <div class="form-row">
+                    <input type="text" name="prenom" id="prenom" placeholder="Prénom *">
+                    <div id="error-prenom" class="error-message">Merci de rentrer votre prénom</div>
+                </div>
+
+                <!-- Mairie -->
+                <div class="form-row">
+                    <span class="form-label">Présent à la Mairie & After-Mairie ? *</span>
+                    <div class="radio-group">
+                        <label><input type="radio" name="mairie" value="oui" onchange="toggleCount('mairieCount', true)"> Oui</label>
+                        <label><input type="radio" name="mairie" value="non" onchange="toggleCount('mairieCount', false)"> Non</label>
+                    </div>
+                    <div id="mairieCount" class="hidden" style="margin-top: 1rem;">
+                        <label for="nbMairie" style="font-size: 0.9rem;">Nombre de personnes :</label>
+                        <select id="nbMairie" name="nb_mairie">
+                            <option value="1">1 personne</option>
+                            <option value="2">2 personnes</option>
+                            <option value="3">3 personnes</option>
+                            <option value="4">4 personnes</option>
+                            <option value="5+">5 et plus</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Houppa -->
+                <div class="form-row">
+                    <span class="form-label">Présent à la Houppa & Réception ?</span>
+                    <div class="radio-group">
+                        <label><input type="radio" name="houppa" value="oui" onchange="toggleCount('houppaCount', true)"> Oui</label>
+                        <label><input type="radio" name="houppa" value="non" onchange="toggleCount('houppaCount', false)"> Non</label>
+                    </div>
+                    <div id="houppaCount" class="hidden" style="margin-top: 1rem;">
+                        <label for="nbHouppa" style="font-size: 0.9rem;">Nombre de personnes :</label>
+                        <select id="nbHouppa" name="nb_houppa">
+                            <option value="1">1 personne</option>
+                            <option value="2">2 personnes</option>
+                            <option value="3">3 personnes</option>
+                            <option value="4">4 personnes</option>
+                            <option value="5+">5 et plus</option>
+                        </select>
+                    </div>
+                    <div id="error-houppa" class="error-message">Merci de sélectionner une option</div>
+                </div>
+
+                <!-- Message -->
+                <div class="form-row">
+                    <textarea name="message" placeholder="Un mot pour les mariés..."></textarea>
+                </div>
+
+                <div style="text-align: center;">
+                    <button type="submit" class="btn-rsvp" style="border: none; cursor: pointer;">Envoyer ma réponse</button>
+                </div>
+            </form>
+        </div>
+    </section>
+
+    <footer style="padding: 2rem; font-size: 0.8rem; color: #888;">
+        <p>Salomée & Ethan - 2027</p>
+    </footer>
     
     <!-- Lecteur audio avec autoplay pour lancer la musique dès l'arrivée -->
     <audio id="bgMusic" autoplay loop>
@@ -74,6 +379,59 @@
         document.body.addEventListener('click', () => {
             if(music.paused) music.play();
         }, { once: true });
+
+        // Logique du formulaire RSVP
+        function toggleCount(elementId, show) {
+            const element = document.getElementById(elementId);
+            if (show) {
+                element.classList.remove('hidden');
+            } else {
+                element.classList.add('hidden');
+            }
+        }
+
+        // Validation et Envoi
+        document.getElementById('weddingForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            let isValid = true;
+            
+            // Reset errors
+            document.querySelectorAll('.error-message').forEach(el => el.style.display = 'none');
+
+            // Validation Nom
+            const nom = document.getElementById('nom');
+            if (!nom.value.trim()) {
+                document.getElementById('error-nom').style.display = 'block';
+                isValid = false;
+            }
+
+            // Validation Prénom
+            const prenom = document.getElementById('prenom');
+            if (!prenom.value.trim()) {
+                document.getElementById('error-prenom').style.display = 'block';
+                isValid = false;
+            }
+
+            // Validation Radio Mairie
+            const mairie = document.querySelector('input[name="mairie"]:checked');
+            if (!mairie) {
+                document.getElementById('error-mairie').style.display = 'block';
+                isValid = false;
+            }
+
+            // Validation Radio Houppa
+            const houppa = document.querySelector('input[name="houppa"]:checked');
+            if (!houppa) {
+                document.getElementById('error-houppa').style.display = 'block';
+                isValid = false;
+            }
+
+            // Si tout est valide
+            if (isValid) {
+                e.target.submit();
+            }
+        });
     </script>
 </body>
 </html>

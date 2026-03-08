@@ -146,7 +146,7 @@
 <body>
 
     <h1>Salomée & Ethan</h1>
-    <div class="date">20 novembre 2026</div>
+    <div class="date">20 fevrier 2027</div>
 
     <div id="countdown">
         <div class="time-unit"><span class="number" id="days">00</span><span class="label">Jours</span></div>
@@ -155,19 +155,24 @@
         <div class="time-unit"><span class="number" id="seconds">00</span><span class="label">Secondes</span></div>
     </div>
 
-    <a href="accueil.html" class="enter-btn">Entrer sur le site</a>
+    <a href="accueil.html" class="enter-btn">Ouvrir l'invitation </a>
 
     <script>
         // Mettez à jour la date de votre mariage ici (Format: Mois Jour, Année Heure:Minute:Seconde)
-        const weddingDate = new Date("november 20, 2026 14:00:00").getTime();
+        const weddingDate = new Date("february 20, 2027 14:00:00").getTime();
 
         const timer = setInterval(() => {
             const now = new Date().getTime();
             const distance = weddingDate - now;
 
-            if (distance < 0) {
+            if (distance == 0) {
                 clearInterval(timer);
                 document.getElementById("countdown").innerHTML = "<div>C'est le grand jour !</div>";
+                return;
+            }
+             else if (distance < 0){
+                clearInterval(timer);
+                document.getElementById("countdown").innerHTML = "<div>Merci d'être venue  !</div>";
                 return;
             }
             document.getElementById("days").innerText = Math.floor(distance / (1000 * 60 * 60 * 24));
