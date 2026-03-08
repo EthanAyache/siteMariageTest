@@ -173,6 +173,7 @@
             outline: none;
             box-sizing: border-box;
         }
+    
         input[type="text"]::placeholder {
             color: #a0a0a0;
         }
@@ -301,9 +302,9 @@
                         <label><input type="radio" name="mairie" value="oui" onchange="toggleCount('mairieCount', true)"> Oui</label>
                         <label><input type="radio" name="mairie" value="non" onchange="toggleCount('mairieCount', false)"> Non</label>
                     </div>
-                    <div id="mairieCount" class="hidden" style="margin-top: 1rem;">
-                        <label for="nbMairie" style="font-size: 0.9rem;">Nombre de personnes :</label>
+                   <div id="mairieCount" class="hidden" style="margin-top: 1rem;">
                         <select id="nbMairie" name="nb_mairie">
+                            <option value="" disabled selected>Nombre de personnes</option>
                             <option value="1">1 personne</option>
                             <option value="2">2 personnes</option>
                             <option value="3">3 personnes</option>
@@ -311,18 +312,19 @@
                             <option value="5+">5 et plus</option>
                         </select>
                     </div>
+                    <div id="error-mairie" class="error-message">Merci de sélectionner une option</div>
                 </div>
 
                 <!-- Houppa -->
                 <div class="form-row">
-                    <span class="form-label">Présent à la Houppa & Réception ?</span>
+                    <span class="form-label">Présent à la Houppa & Réception ? *</span>
                     <div class="radio-group">
                         <label><input type="radio" name="houppa" value="oui" onchange="toggleCount('houppaCount', true)"> Oui</label>
                         <label><input type="radio" name="houppa" value="non" onchange="toggleCount('houppaCount', false)"> Non</label>
                     </div>
                     <div id="houppaCount" class="hidden" style="margin-top: 1rem;">
-                        <label for="nbHouppa" style="font-size: 0.9rem;">Nombre de personnes :</label>
                         <select id="nbHouppa" name="nb_houppa">
+                            <option value="" disabled selected>Nombre de personnes</option>
                             <option value="1">1 personne</option>
                             <option value="2">2 personnes</option>
                             <option value="3">3 personnes</option>
@@ -428,10 +430,14 @@
     }
 
     // Si tout est valide
-    if (isValid) {
+   if (isValid) {
         const formData = new FormData(this);
-        await fetch(this.action, { method: "POST", body: formData });
-        window.location.href = "merci.html";
+        try {
+            await fetch(this.action, { method: "POST", body: formData });
+            window.location.href = "merci.html";
+        } catch(err) {
+            alert("Une erreur est survenue, veuillez réessayer.");
+        }
     }
 });
          
