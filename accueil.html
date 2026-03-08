@@ -282,6 +282,7 @@
             <form class="rsvp-form" id="weddingForm" action="https://formsubmit.co/ayacheethan@gmail.com" method="POST">
                 <input type="hidden" name="_subject" value="Nouveau RSVP - Mariage Salomée & Ethan">
                 <input type="hidden" name="_template" value="table">
+                <input type="hidden" name="_captcha" value="false"> 
 
                 <!-- Identité -->
                 <div class="form-row">
@@ -390,48 +391,50 @@
             }
         }
 
-        // Validation et Envoi
-        document.getElementById('weddingForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-            
-            let isValid = true;
-            
-            // Reset errors
-            document.querySelectorAll('.error-message').forEach(el => el.style.display = 'none');
+        document.getElementById('weddingForm').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    
+    let isValid = true;
+    
+    // Reset errors
+    document.querySelectorAll('.error-message').forEach(el => el.style.display = 'none');
 
-            // Validation Nom
-            const nom = document.getElementById('nom');
-            if (!nom.value.trim()) {
-                document.getElementById('error-nom').style.display = 'block';
-                isValid = false;
-            }
+    // Validation Nom
+    const nom = document.getElementById('nom');
+    if (!nom.value.trim()) {
+        document.getElementById('error-nom').style.display = 'block';
+        isValid = false;
+    }
 
-            // Validation Prénom
-            const prenom = document.getElementById('prenom');
-            if (!prenom.value.trim()) {
-                document.getElementById('error-prenom').style.display = 'block';
-                isValid = false;
-            }
+    // Validation Prénom
+    const prenom = document.getElementById('prenom');
+    if (!prenom.value.trim()) {
+        document.getElementById('error-prenom').style.display = 'block';
+        isValid = false;
+    }
 
-            // Validation Radio Mairie
-            const mairie = document.querySelector('input[name="mairie"]:checked');
-            if (!mairie) {
-                document.getElementById('error-mairie').style.display = 'block';
-                isValid = false;
-            }
+    // Validation Radio Mairie
+    const mairie = document.querySelector('input[name="mairie"]:checked');
+    if (!mairie) {
+        document.getElementById('error-mairie').style.display = 'block';
+        isValid = false;
+    }
 
-            // Validation Radio Houppa
-            const houppa = document.querySelector('input[name="houppa"]:checked');
-            if (!houppa) {
-                document.getElementById('error-houppa').style.display = 'block';
-                isValid = false;
-            }
+    // Validation Radio Houppa
+    const houppa = document.querySelector('input[name="houppa"]:checked');
+    if (!houppa) {
+        document.getElementById('error-houppa').style.display = 'block';
+        isValid = false;
+    }
 
-            // Si tout est valide
-            if (isValid) {
-                e.target.submit();
-            }
-        });
+    // Si tout est valide
+    if (isValid) {
+        const formData = new FormData(this);
+        await fetch(this.action, { method: "POST", body: formData });
+        window.location.href = "merci.html";
+    }
+});
+         
     </script>
 </body>
 </html>
