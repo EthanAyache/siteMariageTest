@@ -1,16 +1,97 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="fr">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>merci</title>
+    <title>Merci - Salomée & Ethan</title>
+    <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Lato:wght@300;400&display=swap" rel="stylesheet">
+    <style>
+        body {
+            margin: 0;
+            padding: 20px;
+            background-color: #f3eeeb;
+            color: #4a4a4a;
+            font-family: 'Lato', sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            text-align: center;
+            box-sizing: border-box;
+        }
+
+        h1 {
+            font-family: 'Great Vibes', cursive;
+            font-size: 5rem;
+            color: #D4AF37; /* Or */
+            margin: 0 0 1rem 0;
+            font-weight: normal;
+            line-height: 1.2;
+        }
+
+        p {
+            font-size: 1.2rem;
+            margin-bottom: 1.5rem;
+            line-height: 1.6;
+        }
+
+        .message-box {
+            background: #ffffff;
+            padding: 3rem;
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            max-width: 600px;
+            width: 100%;
+            border: 1px solid #D4AF37;
+        }
+
+        .date-rappel {
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            color: #D4AF37;
+            font-weight: bold;
+            margin: 2rem 0;
+            display: block;
+        }
+
+        .btn-retour {
+            display: inline-block;
+            text-decoration: none;
+            color: #ffffff;
+            background-color: #D4AF37;
+            border: 1px solid #D4AF37;
+            padding: 12px 40px;
+            border-radius: 30px;
+            font-size: 1rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            transition: all 0.3s ease;
+        }
+
+        .btn-retour:hover {
+            background-color: #bfa05f;
+            border-color: #bfa05f;
+            transform: translateY(-2px);
+        }
+
+        @media screen and (max-width: 480px) {
+            h1 { font-size: 3.5rem; }
+            .message-box { padding: 2rem 1rem; }
+        }
+    </style>
 </head>
 <body>
-    <p>MERCI</p>
 
-    <div class="remerciement"> 
-        <p>nous vous remercions de votre reponses toda raba raba </p>
- </div>
-    
+    <div class="message-box">
+        <h1>Merci !</h1>
+        <p>Votre réponse a bien été enregistrée.</p>
+        <p>Nous sommes impatients de partager ce moment unique avec vous et de célébrer notre union.</p>
+        
+        <span class="date-rappel">Rendez-vous le 20 Février 2027</span>
+        
+        <a href="accueil.html" class="btn-retour">Retour au site</a>
+    </div>
+
 </body>
 </html>
