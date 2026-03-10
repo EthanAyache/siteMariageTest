@@ -48,6 +48,7 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
+            box-sizing: border-box;
         }
         .nav-logo {
             font-size: 1.8rem;
@@ -156,6 +157,9 @@
             max-width: 600px;
             margin: 0 auto;
             font-style: italic;
+            width: 100%;
+            padding: 0 1.5rem;
+            box-sizing: border-box;
         }
         .form-row {
             margin-bottom: 2rem;
@@ -226,20 +230,30 @@
         }
         
         
-        @media (max-width: 768px) {
-            nav {
-                flex-direction: column;
-               
-            }
-            .nav-links {
-                margin-top: 1rem;
-                gap: 1rem;
-                flex-wrap: wrap;
-                justify-content: center;
-            }
-            h1 { font-size: 2.5rem; }
-            .hero img { max-height: 250px; }
-        }
+       @media (max-width: 768px) {
+    nav {
+        flex-direction: column;
+        padding: 1rem;
+        width: 100%;
+        box-sizing: border-box;
+    }
+    .nav-links {
+        margin-top: 1rem;
+        gap: 1rem;
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+    h1 { font-size: 2.5rem; }
+    .hero img { max-height: 250px; }
+    section {
+        padding: 2rem 1rem;
+        box-sizing: border-box;
+    }
+    .btn-rsvp {
+        width: 80%;
+        text-align: center;
+    }
+}
     </style>
 </head>
 <body>
