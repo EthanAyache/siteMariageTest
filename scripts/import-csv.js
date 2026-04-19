@@ -4,8 +4,8 @@ import { readFileSync } from 'fs'
 import { randomBytes } from 'crypto'
 
 const supabase = createClient(
-  'https://ingtrfzjxbtjzisctuyo.supabase.co',
-  'COLLE_TA_SUPABASE_KEY_ICI'
+  'https://ingtrfzjxbtjzisctuyo.supabase.co',  // déjà bon
+  'sb_publishable_bzP_bkQglIR0yTB4kZiITg_wFnq6m3h'  // ← remplace ça par ta publishable key
 )
 
 const csv = readFileSync('./invites.csv', 'utf-8')

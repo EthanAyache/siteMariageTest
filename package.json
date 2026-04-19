@@ -13,12 +13,13 @@
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "type": "commonjs",
+  "type": "module",
   "bugs": {
     "url": "https://github.com/EthanAyache/siteMariageTest/issues"
   },
   "homepage": "https://github.com/EthanAyache/siteMariageTest#readme",
   "dependencies": {
-    "@supabase/supabase-js": "^2.103.3"
+    "@supabase/supabase-js": "^2.103.3",
+    "csv-parse": "^6.2.1"
   }
 }
