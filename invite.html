@@ -189,11 +189,12 @@
             margin-bottom: 1rem;
         }
 
-        /* Message libre */
-        .form-row { margin-top: 2rem; text-align: left; }
-        .form-label { display: block; margin-bottom: 0.5rem; color: #D4AF37; font-size: 1rem; font-style: italic; }
+        /* Styles Formulaire RSVP (adaptés de l'accueil) */
+        .rsvp-form { text-align: left; width: 100%; box-sizing: border-box; }
+        .form-row { margin-bottom: 2rem; }
+        .form-label { display: block; margin-bottom: 0.5rem; color: #D4AF37; font-size: 1.1rem; font-style: italic; }
 
-        textarea {
+        textarea, select {
             width: 100%;
             padding: 10px 0;
             background: transparent;
@@ -205,10 +206,14 @@
             color: #4a4a4a;
             outline: none;
             box-sizing: border-box;
-            resize: vertical;
-            min-height: 80px;
         }
+        textarea { resize: vertical; min-height: 80px; }
         textarea::placeholder { color: #a0a0a0; }
+
+        .radio-group { display: flex; gap: 2rem; margin-top: 0.5rem; align-items: center; }
+        .radio-group label { cursor: pointer; }
+        .hidden { display: none; animation: fadeIn 0.5s; }
+        .error-message { color: #e07070; font-size: 0.85rem; margin-top: 0.5rem; display: none; font-style: normal; }
 
         /* Loading / erreur */
         .loading {
@@ -408,6 +413,16 @@
         // ── Chargement invité ────────────────────────────────────
         let currentToken = null;
 
+        // ── Logique Formulaire RSVP ──────────────────────────────
+        function toggleCount(elementId, show) {
+            const element = document.getElementById(elementId);
+            if (show) {
+                element.classList.remove('hidden');
+            } else {
+                element.classList.add('hidden');
+            }
+        }
+
         async function loadInvite() {
             const token = new URLSearchParams(window.location.search).get('token');
 
@@ -426,8 +441,26 @@
 
         function displayInvite(invite) {
             document.getElementById('guestGreeting').textContent = `Cher(e) ${invite.nom}`;
-            document.getElementById('placesBadge').textContent =
-                invite.places === 1 ? `1 place réservée` : `${invite.places} places réservées`;
+            document.getElementById('rsvpNameDisplay').textContent = invite.nom;
+
+            // Générer le nombre de places maximum dans les listes déroulantes
+            const nbMairie = document.getElementById('nbMairie');
+            const nbHouppa = document.getElementById('nbHouppa');
+            nbMairie.innerHTML = '<option value="" disabled selected>Nombre de personnes</option>';
+            nbHouppa.innerHTML = '<option value="" disabled selected>Nombre de personnes</option>';
+
+            const places = invite.places || 1;
+            for (let i = 1; i <= places; i++) {
+                let optMairie = document.createElement('option');
+                optMairie.value = i;
+                optMairie.text = i + (i > 1 ? ' personnes' : ' personne');
+                nbMairie.appendChild(optMairie);
+
+                let optHouppa = document.createElement('option');
+                optHouppa.value = i;
+                optHouppa.text = i + (i > 1 ? ' personnes' : ' personne');
+                nbHouppa.appendChild(optHouppa);
+            }
 
             // Déjà répondu ?
             if (invite.rsvp === 'confirme' || invite.rsvp === 'decline') {
@@ -444,24 +477,68 @@
         }
 
         // ── Envoi RSVP ───────────────────────────────────────────
-        async function sendRSVP(reponse) {
-            const message = document.getElementById('guestMessage').value;
+        async function submitRsvpForm(e) {
+            e.preventDefault();
+            let isValid = true;
+            document.querySelectorAll('.error-message').forEach(el => el.style.display = 'none');
 
-            try {
-                await fetch('/api/rsvp', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ token: currentToken, rsvp: reponse, message })
-                });
-                showConfirmation(reponse, true);
-            } catch {
-                alert("Une erreur est survenue, veuillez réessayer.");
+            // Validation Mairie
+            const mairie = document.querySelector('input[name="mairie"]:checked');
+            if (!mairie) {
+                document.getElementById('error-mairie').innerText = "Merci de sélectionner une option";
+                document.getElementById('error-mairie').style.display = 'block';
+                isValid = false;
+            } else if (mairie.value === 'oui' && !document.getElementById('nbMairie').value) {
+                document.getElementById('error-mairie').innerText = "Merci de préciser le nombre de personnes";
+                document.getElementById('error-mairie').style.display = 'block';
+                isValid = false;
+            }
+
+            // Validation Houppa
+            const houppa = document.querySelector('input[name="houppa"]:checked');
+            if (!houppa) {
+                document.getElementById('error-houppa').innerText = "Merci de sélectionner une option";
+                document.getElementById('error-houppa').style.display = 'block';
+                isValid = false;
+            } else if (houppa.value === 'oui' && !document.getElementById('nbHouppa').value) {
+                document.getElementById('error-houppa').innerText = "Merci de préciser le nombre de personnes";
+                document.getElementById('error-houppa').style.display = 'block';
+                isValid = false;
+            }
+
+            if (isValid) {
+                const message = document.getElementById('guestMessage').value;
+                const nbMairie = document.getElementById('nbMairie').value;
+                const nbHouppa = document.getElementById('nbHouppa').value;
+
+                const isDecline = (mairie.value === 'non' && houppa.value === 'non');
+                const reponse = isDecline ? 'decline' : 'confirme';
+
+                const payload = {
+                    token: currentToken,
+                    rsvp: reponse,
+                    mairie: mairie.value,
+                    nb_mairie: mairie.value === 'oui' ? nbMairie : 0,
+                    houppa: houppa.value,
+                    nb_houppa: houppa.value === 'oui' ? nbHouppa : 0,
+                    message: message
+                };
+
+                try {
+                    await fetch('/api/rsvp', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload)
+                    });
+                    showConfirmation(reponse, true);
+                } catch {
+                    alert("Une erreur est survenue, veuillez réessayer.");
+                }
             }
         }
 
         function showConfirmation(reponse, animate) {
-            document.getElementById('rsvpButtons').style.display = 'none';
-            document.getElementById('messageRow').style.display = 'none';
+            document.getElementById('customRsvpForm').style.display = 'none';
 
             const box = document.getElementById('confirmationBox');
             const title = document.getElementById('confirmationTitle');
