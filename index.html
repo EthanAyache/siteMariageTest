@@ -1,16 +1,19 @@
 <!DOCTYPE html>
 <html lang="fr">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Bienvenue à Notre Mariage</title>
-    <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Lato:wght@300;400&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Lato:wght@300;400&display=swap"
+        rel="stylesheet">
     <style>
         body {
             margin: 0;
             padding: 20px;
             background-color: #ffffff;
-            color: #D4AF37; /* Couleur Or */
+            color: #D4AF37;
+            /* Couleur Or */
             font-family: 'Lato', sans-serif;
             display: flex;
             flex-direction: column;
@@ -26,6 +29,7 @@
             background-position: center;
             box-sizing: border-box;
         }
+
         h1 {
             font-family: 'Great Vibes', cursive;
             font-size: 5rem;
@@ -33,6 +37,7 @@
             font-weight: normal;
             line-height: 1.2;
         }
+
         .date {
             font-size: 1.2rem;
             margin-top: 1rem;
@@ -41,28 +46,34 @@
             text-transform: uppercase;
             color: #bfa05f;
         }
+
         #countdown {
             display: flex;
             justify-content: center;
             gap: 2rem;
-            margin-bottom: 4rem;
+            margin-bottom: 3rem;
+            flex-wrap: wrap;
         }
+
         .time-unit {
             display: flex;
             flex-direction: column;
             align-items: center;
             min-width: 80px;
         }
+
         .number {
             font-size: 3rem;
             font-weight: 300;
         }
+
         .label {
             font-size: 0.8rem;
             text-transform: uppercase;
             letter-spacing: 2px;
             margin-top: 0.5rem;
         }
+
         .enter-btn {
             text-decoration: none;
             color: #D4AF37;
@@ -73,10 +84,12 @@
             letter-spacing: 3px;
             transition: all 0.3s ease;
         }
+
         .enter-btn:hover {
             background-color: #D4AF37;
             color: #ffffff;
         }
+
         .music-btn {
             position: fixed;
             top: 20px;
@@ -92,6 +105,7 @@
             z-index: 100;
             transition: all 0.3s ease;
         }
+
         .music-btn:hover {
             background-color: #D4AF37;
             color: #ffffff;
@@ -100,12 +114,9 @@
         /* Media Queries pour tablettes et mobiles */
         @media screen and (max-width: 768px) {
             h1 {
-                font-size: 3.5rem;
+                font-size: 4rem;
             }
-            #countdown {
-                gap: 1.5rem;
-                margin-bottom: 3rem;
-            }
+
             .number {
                 font-size: 2.5rem;
             }
@@ -113,49 +124,126 @@
 
         @media screen and (max-width: 480px) {
             h1 {
-                font-size: 2.5rem;
+                font-size: 3rem;
             }
+
             .date {
                 font-size: 1rem;
-                margin-bottom: 2rem;
+                margin-bottom: 1.5rem;
             }
+
             #countdown {
-                gap: 0.5rem;
+                gap: 1rem;
                 margin-bottom: 2rem;
+                justify-content: center;
             }
+
             .time-unit {
                 min-width: auto;
             }
+
             .number {
-                font-size: 1.8rem;
+                font-size: 2rem;
             }
+
             .label {
                 font-size: 0.7rem;
             }
+
             .enter-btn {
                 padding: 12px 30px;
                 font-size: 0.9rem;
             }
+
             .music-btn {
                 padding: 8px 15px;
                 font-size: 0.8rem;
             }
         }
+
+         .hero-arch-wrapper {
+            padding-top: 50px;
+            position: relative;
+            z-index: 2;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            animation: fadeInUp 1.5s ease both;
+        }
+
+        /* Arche */
+        .hero-arch {
+            box-sizing: border-box;
+            background: rgba(255,255,255,0.84);
+            backdrop-filter: blur(10px);
+            border: 1.5px solid #D4AF37;
+            border-radius: 140px 140px 14px 14px;
+            padding: 3.8rem 3.2rem 3rem;
+            /* Largeur adaptée au contenu (compteur) tout en restant fluide */
+            width: min(700px, 90vw); 
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.6rem;
+            box-shadow:
+                0 12px 60px rgba(212,175,55,0.13),
+                0 2px 16px rgba(0,0,0,0.05),
+                inset 0 0 0 8px rgba(212,175,55,0.06);
+            position: relative;
+            margin: 0 auto;
+        }
+
+        /* Bordure intérieure fine */
+        .hero-arch::before {
+            content: '';
+            position: absolute;
+            top: 14px; left: 14px; right: 14px; bottom: 14px;
+            border: 1px solid rgba(212,175,55,0.20);
+            border-radius: 126px 126px 6px 6px;
+            pointer-events: none;
+        }
+
+        /* Ajustement spécifique pour l'arche sur mobile */
+        @media screen and (max-width: 600px) {
+            .hero-arch {
+                padding: 3rem 1.5rem 2rem;
+                border-radius: 100px 100px 14px 14px;
+            }
+            .hero-arch::before {
+                border-radius: 90px 90px 6px 6px;
+            }
+        }
     </style>
 </head>
+
 <body>
 
-    <h1>Salomée & Ethan</h1>
-    <div class="date">20 fevrier 2027</div>
+    <div class="hero-arch-wrapper">
 
-    <div id="countdown">
-        <div class="time-unit"><span class="number" id="days">00</span><span class="label">Jours</span></div>
-        <div class="time-unit"><span class="number" id="hours">00</span><span class="label">Heures</span></div>
-        <div class="time-unit"><span class="number" id="minutes">00</span><span class="label">Minutes</span></div>
-        <div class="time-unit"><span class="number" id="seconds">00</span><span class="label">Secondes</span></div>
+        <div class="hero-arch">
+
+            <h1>Salomée & Ethan</h1>
+            <div class="date">20 fevrier 2027</div>
+
+            <div id="countdown">
+                <div class="time-unit"><span class="number" id="days">00</span><span class="label">Jours</span></div>
+                <div class="time-unit"><span class="number" id="hours">00</span><span class="label">Heures</span></div>
+                <div class="time-unit"><span class="number" id="minutes">00</span><span class="label">Minutes</span>
+                </div>
+                <div class="time-unit"><span class="number" id="seconds">00</span><span class="label">Secondes</span>
+                </div>
+            </div>
+
+            <a href="accueil.html" class="enter-btn">Ouvrir l'invitation </a>
+
+            <br><br>
+            <div class="hero-bsd">בס״ד</div>
+
+        </div>
     </div>
 
-    <a href="accueil.html" class="enter-btn">Ouvrir l'invitation </a>
+
+
 
     <script>
         // Mettez à jour la date de votre mariage ici (Format: Mois Jour, Année Heure:Minute:Seconde)
@@ -170,7 +258,7 @@
                 document.getElementById("countdown").innerHTML = "<div>C'est le grand jour !</div>";
                 return;
             }
-             else if (distance < 0){
+            else if (distance < 0) {
                 clearInterval(timer);
                 document.getElementById("countdown").innerHTML = "<div>Merci d'être venue  !</div>";
                 return;
@@ -182,4 +270,5 @@
         }, 1000);
     </script>
 </body>
+
 </html>

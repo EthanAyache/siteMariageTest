@@ -5,8 +5,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Salomée & Ethan - Accueil</title>
-    <link rel="stylesheet" href="carte.css">
-    <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Lato:wght@300;400&display=swap"
+    <link
+        href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Lato:wght@300;400&family=Playfair+Display:ital,wght@0,400;0,500;0,600&family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600&family=WindSong:wght@400;500&display=swap"
         rel="stylesheet">
     <style>
         html,
@@ -289,12 +289,197 @@
         .david {
             display: flex;
             align-items: center;
-            /* aligne verticalement au centre */
             justify-content: center;
             gap: 10px;
-            /* espace entre les étoiles et le texte */
         }
 
+        /* --- Styles de la carte d'invitation --- */
+        .invitation-section {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 60px 20px;
+            background-color: transparent;
+        }
+
+        .invitation-card {
+            width: 80%;
+            max-width: 380px;
+            position: relative;
+            padding: 30px 30px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background-color: #faf8f5;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+            border: 1.5px solid #c29b4e;
+
+        }
+
+        .invitation-card .gold-frame {
+            position: relative;
+            border: 1.5px solid #c29b4e;
+            width: 100%;
+            height: 100%;
+            padding: 50px 20px 40px;
+            text-align: center;
+            z-index: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            box-sizing: border-box;
+        }
+
+        .floral-top-left {
+            position: absolute;
+            top: -55px;
+            left: -50px;
+            width: 220px;
+            height: auto;
+            z-index: 2;
+            mix-blend-mode: multiply;
+            pointer-events: none;
+        }
+
+        .floral-bottom-right {
+            position: absolute;
+            bottom: -50px;
+            right: -40px;
+            width: 160px;
+            height: auto;
+            transform: rotate(180deg);
+            z-index: 2;
+            mix-blend-mode: multiply;
+            pointer-events: none;
+        }
+
+
+        .inv-logo-letters {
+            font-family: 'WindSong', cursive;
+            font-size: 2.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
+            margin-bottom: 25px;
+            margin-top: 10px;
+            color: #111;
+        }
+
+
+        .inv-heart-svg {
+            width: 28px;
+            height: 28px;
+            stroke-width: 1.2px;
+            stroke: currentColor;
+        }
+
+        .inv-subtitle {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.5rem;
+            letter-spacing: 1.5px;
+            margin-bottom: 25px;
+            font-weight: 500;
+            color: #c29b4e;
+            margin-top: 0;
+        }
+
+        .inv-main-names {
+            font-family: 'Great Vibes', cursive;
+            font-size: 4.8rem;
+            color: #c29b4e !important;
+            line-height: 1.1;
+            margin-bottom: 20px;
+            font-weight: 400;
+            margin-top: 0;
+        }
+
+        .inv-transition-text {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.4rem;
+            margin-bottom: -10px;
+            color: #111;
+        }
+
+        .inv-oui-text {
+            font-family: 'WindSong', cursive;
+            font-size: 4rem;
+            margin-bottom: 35px;
+            font-weight: 500;
+            color: #111;
+        }
+
+        .inv-date-time {
+            font-family: 'Playfair Display', serif;
+            color: #c29b4e;
+            font-size: 1.7rem;
+            font-weight: 500;
+            line-height: 1.6;
+            margin-bottom: 30px;
+        }
+
+        .inv-address-block {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.35rem;
+            line-height: 1.8;
+            margin-bottom: 35px;
+            font-weight: 400;
+            color: #111;
+        }
+
+        .inv-address-line {
+            display: block;
+        }
+
+        .inv-reception-block {
+            font-family: 'Cormorant Garamond', serif;
+            font-style: italic;
+            font-size: 1.35rem;
+            line-height: 1.7;
+            margin-bottom: 20px;
+            width: 100%;
+            color: #111;
+        }
+
+        .inv-reception-address {
+            display: block;
+            margin-top: 5px;
+        }
+
+        @media (max-width: 480px) {
+            .inv-main-names {
+                font-size: 4rem;
+            }
+
+            .inv-date-time {
+                font-size: 1.4rem;
+            }
+
+            .inv-oui-text {
+                font-size: 3.5rem;
+            }
+
+            .inv-address-block,
+            .inv-reception-block {
+                font-size: 1.2rem;
+            }
+
+            .floral-top-left {
+                width: 170px;
+                top: -40px;
+                left: -30px;
+            }
+
+            .floral-bottom-right {
+                width: 140px;
+                bottom: -40px;
+                right: -25px;
+            }
+
+            .invitation-card .gold-frame {
+                padding: 40px 15px 30px;
+            }
+        }
 
         @media (max-width: 768px) {
             nav {
@@ -337,21 +522,61 @@
     <nav>
         <div class="nav-logo">Salomée & Ethan</div>
         <div class="nav-links">
-            <a href="#accueil">Accueil</a>
+            <a href="#invitation">Invitation</a>
             <a href="#programme">Programme</a>
             <a href="#infos">Infos</a>
             <a href="#rsvp">R.S.V.P</a>
         </div>
     </nav>
 
-    <!-- Hero Section -->
-    <div class="hero" id="accueil">
-        <img src="image/alliancePrenom.png" alt="Alliances">
-        <h1>Salomée & Ethan</h1>
-        <p style="text-transform: uppercase; letter-spacing: 3px;">20 Février 2027</p>
-    </div>
+    <!-- Invitation Card Section -->
+    <section id="invitation" class="invitation-section">
+        <div class="invitation-card">
+            <div class="gold-frame">
 
 
+
+                <!--  <div class="inv-logo-letters">
+                    S
+                    <svg class="inv-heart-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                        stroke-linecap="round" stroke-linejoin="round">
+                        <path
+                            d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z">
+                        </path>
+                    </svg>
+                    E
+                </div>
+                -->
+
+                <div class="logoSE">
+                    <img src="img/logo-SE-Photoroom.png" alt="SE" width="150px">
+                </div>
+                <h2 class="inv-subtitle">CÉRÉMONIE RELIGIEUSE</h2>
+
+                <h1 class="inv-main-names">Salomée <br> &<br> Ethan</h1>
+
+                <p class="inv-transition-text">se diront</p>
+
+                <div class="inv-oui-text">oui !</div>
+
+                <div class="inv-date-time">
+                    Le Samedi 20 Février 2027<br>
+                    à 14 heures précises
+                </div>
+
+                <div class="inv-address-block">
+                    <span class="inv-address-line">à la Synagogue de la Victoire</span>
+                    <span class="inv-address-line">44 Rue de la Victoire</span>
+                    <span class="inv-address-line">75009 Paris</span>
+                </div>
+
+                <div class="inv-reception-block">
+                    La Cérémonie sera suivie d'une merveilleuse réception aux :<br>
+                    <span class="inv-reception-address" style="font-weight: 600;">Jardins du Pavillon</span>
+                </div>
+            </div>
+        </div>
+    </section>
 
     <!-- Programme Section -->
     <section id="programme">
@@ -466,7 +691,6 @@
             </p>
         </div>
     </footer>
-
 
     <!-- Lecteur audio avec autoplay pour lancer la musique dès l'arrivée -->
     <audio id="bgMusic" autoplay loop>
