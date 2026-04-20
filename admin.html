@@ -434,6 +434,13 @@
             document.getElementById('statAttente').textContent = allInvites.filter(i => i.rsvp === 'en attente').length;
         }
 
+         // ── Badge ─────────────────────────────────────────────────
+        function getBadge(rsvp) {
+            if (rsvp === 'confirme') return `<span class="badge badge-confirme">✓ Confirmé</span>`;
+            if (rsvp === 'decline') return `<span class="badge badge-decline">✗ Décliné</span>`;
+            return `<span class="badge badge-attente">⏳ En attente</span>`;
+        }
+
         // ── Table invités ─────────────────────────────────────────
         function renderTable() {
             const search = document.getElementById('searchInput').value.toLowerCase();
