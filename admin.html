@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin — Salomée & Ethan</title>
     <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Lato:wght@300;400;700&display=swap" rel="stylesheet">
-    <!-- Import de Supabase -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -30,7 +29,6 @@
             min-height: 100vh;
         }
 
-        /* Header */
         header {
             background: var(--blanc);
             border-bottom: 1px solid rgba(212,175,55,0.2);
@@ -44,24 +42,9 @@
             box-shadow: 0 2px 20px rgba(0,0,0,0.05);
         }
 
-        .header-logo {
-            font-family: 'Great Vibes', cursive;
-            font-size: 2rem;
-            color: var(--or);
-        }
-
-        .header-title {
-            font-size: 0.75rem;
-            text-transform: uppercase;
-            letter-spacing: 3px;
-            color: var(--gris);
-        }
-
-        .header-right {
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-        }
+        .header-logo { font-family: 'Great Vibes', cursive; font-size: 2rem; color: var(--or); }
+        .header-title { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 3px; color: var(--gris); }
+        .header-right { display: flex; align-items: center; gap: 1rem; }
 
         .btn-retour {
             text-decoration: none;
@@ -76,12 +59,7 @@
         }
         .btn-retour:hover { background: var(--or); color: #fff; }
 
-        /* Main */
-        main {
-            max-width: 1100px;
-            margin: 0 auto;
-            padding: 3rem 2rem;
-        }
+        main { max-width: 1100px; margin: 0 auto; padding: 3rem 2rem; }
 
         /* Stats */
         .stats {
@@ -99,30 +77,44 @@
             border-left: 4px solid var(--or);
             animation: fadeInUp 0.5s ease both;
         }
-
         .stat-card:nth-child(2) { border-color: var(--vert); animation-delay: 0.1s; }
         .stat-card:nth-child(3) { border-color: var(--rouge); animation-delay: 0.2s; }
         .stat-card:nth-child(4) { border-color: var(--orange); animation-delay: 0.3s; }
 
-        .stat-number {
-            font-size: 2.5rem;
-            font-weight: 300;
-            color: var(--or);
-            line-height: 1;
-        }
+        .stat-number { font-size: 2.5rem; font-weight: 300; color: var(--or); line-height: 1; }
         .stat-card:nth-child(2) .stat-number { color: var(--vert); }
         .stat-card:nth-child(3) .stat-number { color: var(--rouge); }
         .stat-card:nth-child(4) .stat-number { color: var(--orange); }
+        .stat-label { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 2px; color: var(--gris); margin-top: 0.4rem; }
 
-        .stat-label {
-            font-size: 0.75rem;
+        /* Onglets */
+        .tab-nav {
+            display: flex;
+            border-bottom: 2px solid rgba(212,175,55,0.2);
+            margin-bottom: 2.5rem;
+        }
+
+        .tab-btn {
+            padding: 1rem 2rem;
+            background: none;
+            border: none;
+            font-family: 'Lato', sans-serif;
+            font-size: 0.85rem;
             text-transform: uppercase;
             letter-spacing: 2px;
             color: var(--gris);
-            margin-top: 0.4rem;
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+            margin-bottom: -2px;
+            transition: all 0.3s;
         }
+        .tab-btn:hover { color: var(--or); }
+        .tab-btn.active { color: var(--or); border-bottom-color: var(--or); font-weight: 700; }
 
-        /* Barre de recherche + filtre */
+        .tab-panel { display: none; }
+        .tab-panel.active { display: block; animation: fadeInUp 0.3s ease both; }
+
+        /* Toolbar */
         .toolbar {
             display: flex;
             gap: 1rem;
@@ -161,11 +153,7 @@
             border-radius: 30px;
             transition: all 0.3s;
         }
-        .filter-btn.active, .filter-btn:hover {
-            background: var(--or);
-            color: #fff;
-            border-color: var(--or);
-        }
+        .filter-btn.active, .filter-btn:hover { background: var(--or); color: #fff; border-color: var(--or); }
         .filter-btn.active-vert { background: var(--vert); border-color: var(--vert); color: #fff; }
         .filter-btn.active-rouge { background: var(--rouge); border-color: var(--rouge); color: #fff; }
 
@@ -177,10 +165,7 @@
             overflow: hidden;
         }
 
-        table {
-            width: 100%;
-            border-collapse: collapse;
-        }
+        table { width: 100%; border-collapse: collapse; }
 
         thead {
             background: linear-gradient(135deg, #faf7f0, #f3eeeb);
@@ -205,11 +190,9 @@
         }
 
         tr:last-child td { border-bottom: none; }
-
         tr { transition: background 0.2s; }
         tr:hover td { background: rgba(212,175,55,0.03); }
 
-        /* Badge statut */
         .badge {
             display: inline-block;
             padding: 4px 14px;
@@ -223,13 +206,7 @@
         .badge-confirme { background: #e8f5e8; color: #4a9a4a; }
         .badge-decline { background: #fde8e8; color: #c05050; }
 
-        /* Lien */
-        .lien-cell {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-
+        .lien-cell { display: flex; align-items: center; gap: 0.5rem; }
         .lien-text {
             font-size: 0.78rem;
             color: var(--gris);
@@ -255,43 +232,85 @@
         .btn-copy:hover { background: var(--or); color: #fff; border-color: var(--or); }
         .btn-copy.copied { background: var(--vert); color: #fff; border-color: var(--vert); }
 
-        /* Loading */
-        .loading-row td {
+        /* Messages */
+        .messages-subtitle {
+            font-size: 0.85rem;
+            color: var(--gris);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 2rem;
+        }
+
+        .messages-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .message-card {
+            background: var(--blanc);
+            border-radius: 12px;
+            padding: 1.5rem;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+            border-top: 3px solid var(--or);
+            animation: fadeInUp 0.4s ease both;
+        }
+
+        .message-card-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 1rem;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+
+        .message-author {
+            font-weight: 700;
+            font-size: 1rem;
+            color: var(--texte);
+        }
+
+        .message-text {
+            font-size: 0.95rem;
+            line-height: 1.7;
+            color: var(--texte);
+            font-style: italic;
+            border-left: 3px solid var(--or-light);
+            padding-left: 1rem;
+        }
+
+        .messages-empty {
             text-align: center;
             padding: 4rem;
             color: var(--gris);
             font-style: italic;
+            background: var(--blanc);
+            border-radius: 16px;
+            box-shadow: 0 4px 30px rgba(0,0,0,0.06);
+            grid-column: 1 / -1;
         }
 
-        /* Vide */
-        .empty {
-            text-align: center;
-            padding: 4rem;
-            color: var(--gris);
-            font-style: italic;
-        }
+        .loading-row td { text-align: center; padding: 4rem; color: var(--gris); font-style: italic; }
+        .empty { text-align: center; padding: 4rem; color: var(--gris); font-style: italic; }
 
-        /* Animations */
         @keyframes fadeInUp {
             from { opacity: 0; transform: translateY(16px); }
             to { opacity: 1; transform: translateY(0); }
         }
+        .row-anim { animation: fadeInUp 0.4s ease both; }
 
-        .row-anim {
-            animation: fadeInUp 0.4s ease both;
-        }
-
-        /* Responsive */
         @media (max-width: 768px) {
             header { padding: 1rem 1.5rem; }
             main { padding: 2rem 1rem; }
             th, td { padding: 0.75rem 1rem; }
             .lien-text { max-width: 120px; }
             .header-title { display: none; }
+            .tab-btn { padding: 0.75rem 1rem; font-size: 0.75rem; letter-spacing: 1px; }
         }
     </style>
 </head>
-<body style="display: none;"> <!-- Le body est caché par défaut pour éviter le clignotement -->
+<body style="display: none;">
 
     <header>
         <div>
@@ -326,33 +345,44 @@
             </div>
         </div>
 
-        <!-- Toolbar -->
-        <div class="toolbar">
-            <input type="text" class="search-input" id="searchInput" placeholder="Rechercher un invité...">
-            <button class="filter-btn active" onclick="setFilter('tous', this)">Tous</button>
-            <button class="filter-btn" onclick="setFilter('confirme', this)">Confirmés</button>
-            <button class="filter-btn" onclick="setFilter('decline', this)">Déclinés</button>
-            <button class="filter-btn" onclick="setFilter('en attente', this)">En attente</button>
-            <button class="filter-btn" style="margin-left: auto; background-color: var(--or); color: #fff; border-color: var(--or);" onclick="downloadCSV()">📥 Exporter Excel/CSV</button>
+        <!-- Onglets -->
+        <div class="tab-nav">
+            <button class="tab-btn active" onclick="switchTab('invites', this)">👥 Invités</button>
+            <button class="tab-btn" onclick="switchTab('messages', this)">💬 Messages <span id="msgCount"></span></button>
         </div>
 
-        <!-- Table -->
-        <div class="table-wrapper">
-            <table>
-                <thead>
-                    <tr>
-                        <th>Nom</th>
-                        <th>Places</th>
-                        <th>Statut</th>
-                        <th>Lien personnalisé</th>
-                    </tr>
-                </thead>
-                <tbody id="tableBody">
-                    <tr class="loading-row">
-                        <td colspan="4">Chargement des invités...</td>
-                    </tr>
-                </tbody>
-            </table>
+        <!-- Panel Invités -->
+        <div class="tab-panel active" id="panel-invites">
+            <div class="toolbar">
+                <input type="text" class="search-input" id="searchInput" placeholder="Rechercher un invité...">
+                <button class="filter-btn active" onclick="setFilter('tous', this)">Tous</button>
+                <button class="filter-btn" onclick="setFilter('confirme', this)">Confirmés</button>
+                <button class="filter-btn" onclick="setFilter('decline', this)">Déclinés</button>
+                <button class="filter-btn" onclick="setFilter('en attente', this)">En attente</button>
+                <button class="filter-btn" style="margin-left: auto; background-color: var(--or); color: #fff; border-color: var(--or);" onclick="downloadCSV()">📥 Exporter CSV</button>
+            </div>
+
+            <div class="table-wrapper">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Nom</th>
+                            <th>Places</th>
+                            <th>Statut</th>
+                            <th>Lien personnalisé</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tableBody">
+                        <tr class="loading-row"><td colspan="4">Chargement des invités...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Panel Messages -->
+        <div class="tab-panel" id="panel-messages">
+            <p class="messages-subtitle" id="messagesSubtitle">Chargement...</p>
+            <div class="messages-grid" id="messagesGrid"></div>
         </div>
 
     </main>
@@ -361,59 +391,52 @@
         const SITE_URL = window.location.origin;
         let allInvites = [];
         let currentFilter = 'tous';
-        
-        // INITIALISATION DE SUPABASE
+
         const SUPABASE_URL = 'https://ingtrfzjxbtjzisctuyo.supabase.co';
         const SUPABASE_ANON_KEY = 'sb_publishable_bzP_bkQglIR0yTB4kZiITg_wFnq6m3h';
         const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-        // 1. Vérification de la sécurité (Est-on connecté ?)
+        // ── Auth ──────────────────────────────────────────────────
         async function checkAuth() {
             const { data: { session } } = await supabaseClient.auth.getSession();
-            
             if (!session) {
-                // Pas de session, on éjecte l'utilisateur vers le login
                 window.location.replace('login.html');
             } else {
-                // L'utilisateur est connecté, on affiche la page et on charge les données
                 document.body.style.display = 'block';
-                loadInvites(); 
+                loadInvites();
             }
         }
 
         // ── Chargement ────────────────────────────────────────────
         async function loadInvites() {
             try {
-                const { data, error } = await supabaseClient.from('invites').select('*');
+                const { data, error } = await supabaseClient
+                    .from('invites')
+                    .select('*')
+                    .order('nom', { ascending: true });
                 if (error) throw error;
-                
                 allInvites = data || [];
                 updateStats();
                 renderTable();
+                renderMessages();
             } catch (err) {
                 console.error("Erreur Supabase:", err);
-                document.getElementById('tableBody').innerHTML = `
-                    <tr><td colspan="4" class="empty">Erreur de chargement. L'API ou la base de données n'est pas encore connectée.</td></tr>`;
+                document.getElementById('tableBody').innerHTML =
+                    `<tr><td colspan="4" class="empty">Erreur de chargement.</td></tr>`;
             }
         }
 
         // ── Stats ─────────────────────────────────────────────────
         function updateStats() {
-            const total = allInvites.length;
-            const confirme = allInvites.filter(i => i.rsvp === 'confirme').length;
-            const decline = allInvites.filter(i => i.rsvp === 'decline').length;
-            const attente = allInvites.filter(i => i.rsvp === 'en attente').length;
-
-            document.getElementById('statTotal').textContent = total;
-            document.getElementById('statConfirme').textContent = confirme;
-            document.getElementById('statDecline').textContent = decline;
-            document.getElementById('statAttente').textContent = attente;
+            document.getElementById('statTotal').textContent = allInvites.length;
+            document.getElementById('statConfirme').textContent = allInvites.filter(i => i.rsvp === 'confirme').length;
+            document.getElementById('statDecline').textContent = allInvites.filter(i => i.rsvp === 'decline').length;
+            document.getElementById('statAttente').textContent = allInvites.filter(i => i.rsvp === 'en attente').length;
         }
 
-        // ── Rendu table ───────────────────────────────────────────
+        // ── Table invités ─────────────────────────────────────────
         function renderTable() {
             const search = document.getElementById('searchInput').value.toLowerCase();
-
             const filtered = allInvites.filter(invite => {
                 const matchSearch = invite.nom.toLowerCase().includes(search);
                 const matchFilter = currentFilter === 'tous' || invite.rsvp === currentFilter;
@@ -421,7 +444,6 @@
             });
 
             const tbody = document.getElementById('tableBody');
-
             if (filtered.length === 0) {
                 tbody.innerHTML = `<tr><td colspan="4" class="empty">Aucun invité trouvé.</td></tr>`;
                 return;
@@ -429,13 +451,11 @@
 
             tbody.innerHTML = filtered.map((invite, i) => {
                 const lien = `${SITE_URL}/invite.html?token=${invite.token}`;
-                const badge = getBadge(invite.rsvp);
-
                 return `
                 <tr class="row-anim" style="animation-delay:${i * 0.04}s">
                     <td><strong>${invite.nom}</strong></td>
                     <td>${invite.places} place${invite.places > 1 ? 's' : ''}</td>
-                    <td>${badge}</td>
+                    <td>${getBadge(invite.rsvp)}</td>
                     <td>
                         <div class="lien-cell">
                             <span class="lien-text" title="${lien}">${lien}</span>
@@ -446,10 +466,40 @@
             }).join('');
         }
 
-        function getBadge(rsvp) {
-            if (rsvp === 'confirme') return `<span class="badge badge-confirme">✓ Confirmé</span>`;
-            if (rsvp === 'decline') return `<span class="badge badge-decline">✗ Décliné</span>`;
-            return `<span class="badge badge-attente">⏳ En attente</span>`;
+        // ── Messages ──────────────────────────────────────────────
+        function renderMessages() {
+            const avecMessage = allInvites.filter(i => i.message && i.message.trim() !== '');
+            const grid = document.getElementById('messagesGrid');
+            const subtitle = document.getElementById('messagesSubtitle');
+            const countBadge = document.getElementById('msgCount');
+
+            countBadge.textContent = avecMessage.length > 0 ? `(${avecMessage.length})` : '';
+
+            if (avecMessage.length === 0) {
+                subtitle.textContent = 'Aucun message pour le moment';
+                grid.innerHTML = `<div class="messages-empty">💌 Les messages de vos invités apparaîtront ici.</div>`;
+                return;
+            }
+
+            subtitle.textContent = `${avecMessage.length} message${avecMessage.length > 1 ? 's' : ''} reçu${avecMessage.length > 1 ? 's' : ''}`;
+
+            grid.innerHTML = avecMessage.map((invite, i) => `
+                <div class="message-card row-anim" style="animation-delay:${i * 0.06}s">
+                    <div class="message-card-header">
+                        <span class="message-author">${invite.nom}</span>
+                        ${getBadge(invite.rsvp)}
+                    </div>
+                    <p class="message-text">"${invite.message}"</p>
+                </div>
+            `).join('');
+        }
+
+        // ── Onglets ───────────────────────────────────────────────
+        function switchTab(tab, btn) {
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+            btn.classList.add('active');
+            document.getElementById(`panel-${tab}`).classList.add('active');
         }
 
         // ── Copier lien ───────────────────────────────────────────
@@ -457,55 +507,34 @@
             navigator.clipboard.writeText(lien).then(() => {
                 btn.textContent = '✓ Copié !';
                 btn.classList.add('copied');
-                setTimeout(() => {
-                    btn.textContent = 'Copier';
-                    btn.classList.remove('copied');
-                }, 2000);
+                setTimeout(() => { btn.textContent = 'Copier'; btn.classList.remove('copied'); }, 2000);
             });
         }
 
         // ── Filtre ────────────────────────────────────────────────
         function setFilter(filter, btn) {
             currentFilter = filter;
-            document.querySelectorAll('.filter-btn').forEach(b => {
-                b.classList.remove('active', 'active-vert', 'active-rouge');
-            });
+            document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active', 'active-vert', 'active-rouge'));
             if (filter === 'confirme') btn.classList.add('active-vert');
             else if (filter === 'decline') btn.classList.add('active-rouge');
             else btn.classList.add('active');
             renderTable();
         }
 
-        // ── Recherche ─────────────────────────────────────────────
         document.getElementById('searchInput').addEventListener('input', renderTable);
 
-        // ── Téléchargement CSV (Excel) ────────────────────────────
+        // ── Export CSV ────────────────────────────────────────────
         function downloadCSV() {
-            if (!allInvites || allInvites.length === 0) {
-                alert("Aucune donnée à exporter pour le moment.");
-                return;
-            }
-
-            // Récupère toutes les colonnes possibles parmi les objets de allInvites
+            if (!allInvites || allInvites.length === 0) { alert("Aucune donnée à exporter."); return; }
             const keys = Array.from(new Set(allInvites.flatMap(Object.keys)));
-            
-            // Ajoute le BOM (\uFEFF) pour qu'Excel comprenne que le fichier est en UTF-8 (pour les accents)
-            let csvContent = "\uFEFF"; 
-            
-            // Ligne d'en-tête
-            csvContent += keys.join(';') + "\n";
-
-            // Lignes de données
+            let csvContent = "\uFEFF" + keys.join(';') + "\n";
             allInvites.forEach(invite => {
                 const row = keys.map(key => {
-                    let cellValue = invite[key] === null || invite[key] === undefined ? "" : String(invite[key]);
-                    // Échappe les guillemets et encapsule la cellule pour éviter les problèmes avec les retours à la ligne ou les points-virgules dans le texte
-                    return `"${cellValue.replace(/"/g, '""')}"`;
+                    let v = invite[key] === null || invite[key] === undefined ? "" : String(invite[key]);
+                    return `"${v.replace(/"/g, '""')}"`;
                 });
                 csvContent += row.join(';') + "\n";
             });
-
-            // Création du fichier et lancement du téléchargement
             const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
             const link = document.createElement("a");
             link.href = URL.createObjectURL(blob);
@@ -516,9 +545,8 @@
         }
 
         // ── Init ──────────────────────────────────────────────────
-        checkAuth(); // On lance la vérification en premier !
+        checkAuth();
 
-        // 2. Gérer la déconnexion
         document.getElementById('logoutBtn').addEventListener('click', async () => {
             await supabaseClient.auth.signOut();
             window.location.replace('login.html');
