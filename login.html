@@ -65,7 +65,8 @@
             });
 
             if (error) {
-                errorMsg.textContent = "Identifiants incorrects.";
+                console.error("Erreur Supabase :", error);
+                errorMsg.textContent = "Erreur : " + error.message;
                 errorMsg.style.display = 'block';
             } else {
                 // Succès ! Redirection vers la page admin
