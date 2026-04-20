@@ -428,7 +428,7 @@
             }
 
             tbody.innerHTML = filtered.map((invite, i) => {
-                const lien = `${SITE_URL}/index.html?token=${invite.token}`;
+                const lien = `${SITE_URL}/invite.html?token=${invite.token}`;
                 const badge = getBadge(invite.rsvp);
 
                 return `
