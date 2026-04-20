@@ -3,458 +3,77 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin — Salomée & Ethan</title>
-    <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Lato:wght@300;400;700&display=swap" rel="stylesheet">
+    <title>Salomée & Ethan - Administration</title>
+    <link href="https://fonts.googleapis.com/css2?family=Lato:wght@300;400&display=swap" rel="stylesheet">
+    <!-- Import de Supabase -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
-        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
-        :root {
-            --or: #D4AF37;
-            --or-light: #f0e4a8;
-            --or-dark: #bfa05f;
-            --fond: #f3eeeb;
-            --blanc: #ffffff;
-            --texte: #4a4a4a;
-            --gris: #a0a0a0;
-            --vert: #6abf6a;
-            --rouge: #e07070;
-            --orange: #e0a070;
-        }
-
         body {
-            background-color: var(--fond);
             font-family: 'Lato', sans-serif;
-            color: var(--texte);
-            min-height: 100vh;
+            background-color: #f3eeeb;
+            margin: 0;
+            padding: 2rem;
+            color: #4a4a4a;
         }
-
-        /* Header */
-        header {
-            background: var(--blanc);
-            border-bottom: 1px solid rgba(212,175,55,0.2);
-            padding: 1.5rem 2.5rem;
+        .header {
             display: flex;
-            align-items: center;
             justify-content: space-between;
-            position: sticky;
-            top: 0;
-            z-index: 100;
-            box-shadow: 0 2px 20px rgba(0,0,0,0.05);
-        }
-
-        .header-logo {
-            font-family: 'Great Vibes', cursive;
-            font-size: 2rem;
-            color: var(--or);
-        }
-
-        .header-title {
-            font-size: 0.75rem;
-            text-transform: uppercase;
-            letter-spacing: 3px;
-            color: var(--gris);
-        }
-
-        .header-right {
-            display: flex;
             align-items: center;
-            gap: 1rem;
-        }
-
-        .btn-retour {
-            text-decoration: none;
-            color: var(--or);
-            border: 1px solid var(--or);
-            padding: 8px 20px;
-            border-radius: 30px;
-            font-size: 0.8rem;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            transition: all 0.3s;
-        }
-        .btn-retour:hover { background: var(--or); color: #fff; }
-
-        /* Main */
-        main {
-            max-width: 1100px;
-            margin: 0 auto;
-            padding: 3rem 2rem;
-        }
-
-        /* Stats */
-        .stats {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-            gap: 1.5rem;
-            margin-bottom: 3rem;
-        }
-
-        .stat-card {
-            background: var(--blanc);
-            border-radius: 12px;
-            padding: 1.5rem 2rem;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.05);
-            border-left: 4px solid var(--or);
-            animation: fadeInUp 0.5s ease both;
-        }
-
-        .stat-card:nth-child(2) { border-color: var(--vert); animation-delay: 0.1s; }
-        .stat-card:nth-child(3) { border-color: var(--rouge); animation-delay: 0.2s; }
-        .stat-card:nth-child(4) { border-color: var(--orange); animation-delay: 0.3s; }
-
-        .stat-number {
-            font-size: 2.5rem;
-            font-weight: 300;
-            color: var(--or);
-            line-height: 1;
-        }
-        .stat-card:nth-child(2) .stat-number { color: var(--vert); }
-        .stat-card:nth-child(3) .stat-number { color: var(--rouge); }
-        .stat-card:nth-child(4) .stat-number { color: var(--orange); }
-
-        .stat-label {
-            font-size: 0.75rem;
-            text-transform: uppercase;
-            letter-spacing: 2px;
-            color: var(--gris);
-            margin-top: 0.4rem;
-        }
-
-        /* Barre de recherche + filtre */
-        .toolbar {
-            display: flex;
-            gap: 1rem;
+            border-bottom: 2px solid #D4AF37;
+            padding-bottom: 1rem;
             margin-bottom: 2rem;
-            flex-wrap: wrap;
-            align-items: center;
         }
-
-        .search-input {
-            flex: 1;
-            min-width: 200px;
-            padding: 10px 16px;
-            border: 1px solid rgba(212,175,55,0.3);
-            border-radius: 30px;
-            font-family: 'Lato', sans-serif;
-            font-size: 0.9rem;
-            color: var(--texte);
-            background: var(--blanc);
-            outline: none;
-            transition: border-color 0.3s;
-        }
-        .search-input:focus { border-color: var(--or); }
-
-        .filter-btn {
+        h1 { color: #D4AF37; margin: 0; font-weight: 400; }
+        button {
+            background-color: #4a4a4a;
+            color: white;
             padding: 10px 20px;
+            border: none;
             border-radius: 30px;
-            border: 1px solid rgba(212,175,55,0.3);
-            background: var(--blanc);
-            font-family: 'Lato', sans-serif;
-            font-size: 0.8rem;
-            text-transform: uppercase;
-            letter-spacing: 1px;
             cursor: pointer;
-            color: var(--gris);
-            transition: all 0.3s;
+            transition: background 0.3s;
         }
-        .filter-btn.active, .filter-btn:hover {
-            background: var(--or);
-            color: #fff;
-            border-color: var(--or);
-        }
-        .filter-btn.active-vert { background: var(--vert); border-color: var(--vert); color: #fff; }
-        .filter-btn.active-rouge { background: var(--rouge); border-color: var(--rouge); color: #fff; }
-
-        /* Table */
-        .table-wrapper {
-            background: var(--blanc);
-            border-radius: 16px;
-            box-shadow: 0 4px 30px rgba(0,0,0,0.06);
-            overflow: hidden;
-        }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-
-        thead {
-            background: linear-gradient(135deg, #faf7f0, #f3eeeb);
-            border-bottom: 2px solid rgba(212,175,55,0.2);
-        }
-
-        th {
-            padding: 1rem 1.5rem;
-            text-align: left;
-            font-size: 0.7rem;
-            text-transform: uppercase;
-            letter-spacing: 2px;
-            color: var(--or);
-            font-weight: 700;
-        }
-
-        td {
-            padding: 1rem 1.5rem;
-            border-bottom: 1px solid rgba(0,0,0,0.04);
-            font-size: 0.9rem;
-            vertical-align: middle;
-        }
-
-        tr:last-child td { border-bottom: none; }
-
-        tr { transition: background 0.2s; }
-        tr:hover td { background: rgba(212,175,55,0.03); }
-
-        /* Badge statut */
-        .badge {
-            display: inline-block;
-            padding: 4px 14px;
-            border-radius: 20px;
-            font-size: 0.75rem;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            font-weight: 700;
-        }
-        .badge-attente { background: #f5f0e0; color: var(--or-dark); }
-        .badge-confirme { background: #e8f5e8; color: #4a9a4a; }
-        .badge-decline { background: #fde8e8; color: #c05050; }
-
-        /* Lien */
-        .lien-cell {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-
-        .lien-text {
-            font-size: 0.78rem;
-            color: var(--gris);
-            font-family: monospace;
-            max-width: 220px;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
-        }
-
-        .btn-copy {
-            background: none;
-            border: 1px solid rgba(212,175,55,0.4);
-            border-radius: 6px;
-            padding: 4px 10px;
-            cursor: pointer;
-            font-size: 0.75rem;
-            color: var(--or);
-            transition: all 0.2s;
-            white-space: nowrap;
-            font-family: 'Lato', sans-serif;
-        }
-        .btn-copy:hover { background: var(--or); color: #fff; border-color: var(--or); }
-        .btn-copy.copied { background: var(--vert); color: #fff; border-color: var(--vert); }
-
-        /* Loading */
-        .loading-row td {
-            text-align: center;
-            padding: 4rem;
-            color: var(--gris);
-            font-style: italic;
-        }
-
-        /* Vide */
-        .empty {
-            text-align: center;
-            padding: 4rem;
-            color: var(--gris);
-            font-style: italic;
-        }
-
-        /* Animations */
-        @keyframes fadeInUp {
-            from { opacity: 0; transform: translateY(16px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        .row-anim {
-            animation: fadeInUp 0.4s ease both;
-        }
-
-        /* Responsive */
-        @media (max-width: 768px) {
-            header { padding: 1rem 1.5rem; }
-            main { padding: 2rem 1rem; }
-            th, td { padding: 0.75rem 1rem; }
-            .lien-text { max-width: 120px; }
-            .header-title { display: none; }
-        }
+        button:hover { background-color: #333; }
     </style>
 </head>
-<body>
+<body style="display: none;"> <!-- Le body est caché par défaut pour éviter le clignotement -->
+    
+    <div class="header">
+        <h1>Tableau de Bord Admin</h1>
+        <button id="logoutBtn">Se déconnecter</button>
+    </div>
 
-    <header>
-        <div>
-            <div class="header-logo">Salomée & Ethan</div>
-            <div class="header-title">Interface Administration</div>
-        </div>
-        <div class="header-right">
-            <a href="accueil.html" class="btn-retour">← Site</a>
-        </div>
-    </header>
-
-    <main>
-
-        <!-- Stats -->
-        <div class="stats">
-            <div class="stat-card">
-                <div class="stat-number" id="statTotal">—</div>
-                <div class="stat-label">Invités total</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-number" id="statConfirme">—</div>
-                <div class="stat-label">Confirmés</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-number" id="statDecline">—</div>
-                <div class="stat-label">Déclinés</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-number" id="statAttente">—</div>
-                <div class="stat-label">En attente</div>
-            </div>
-        </div>
-
-        <!-- Toolbar -->
-        <div class="toolbar">
-            <input type="text" class="search-input" id="searchInput" placeholder="Rechercher un invité...">
-            <button class="filter-btn active" onclick="setFilter('tous', this)">Tous</button>
-            <button class="filter-btn" onclick="setFilter('confirme', this)">Confirmés</button>
-            <button class="filter-btn" onclick="setFilter('decline', this)">Déclinés</button>
-            <button class="filter-btn" onclick="setFilter('en attente', this)">En attente</button>
-        </div>
-
-        <!-- Table -->
-        <div class="table-wrapper">
-            <table>
-                <thead>
-                    <tr>
-                        <th>Nom</th>
-                        <th>Places</th>
-                        <th>Statut</th>
-                        <th>Lien personnalisé</th>
-                    </tr>
-                </thead>
-                <tbody id="tableBody">
-                    <tr class="loading-row">
-                        <td colspan="4">Chargement des invités...</td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
-
-    </main>
+    <div class="content">
+        <p>Bienvenue dans l'espace sécurisé ! C'est ici que tu pourras plus tard gérer ta liste d'invités (depuis le fichier .csv ou ta base de données).</p>
+    </div>
 
     <script>
-        const SITE_URL = window.location.origin;
-        let allInvites = [];
-        let currentFilter = 'tous';
+        // INITIALISATION DE SUPABASE (Remplace par tes clés)
+        const SUPABASE_URL = 'https://ingtrfzjxbtjzisctuyo.supabase.co';
+        const SUPABASE_ANON_KEY = 'sb_publishable_bzP_bkQglIR0yTB4kZiITg_wFnq6m3h';
+        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-        // ── Chargement ────────────────────────────────────────────
-        async function loadInvites() {
-            try {
-                const res = await fetch('/api/get-all-invites');
-                if (!res.ok) throw new Error();
-                allInvites = await res.json();
-                updateStats();
-                renderTable();
-            } catch {
-                document.getElementById('tableBody').innerHTML = `
-                    <tr><td colspan="4" class="empty">Erreur de chargement. Vérifiez l'API.</td></tr>`;
+        // 1. Vérification de la sécurité (Est-on connecté ?)
+        async function checkAuth() {
+            const { data: { session } } = await supabase.auth.getSession();
+            
+            if (!session) {
+                // Pas de session, retour au login
+                window.location.replace('login.html');
+            } else {
+                // L'utilisateur est connecté, on affiche la page
+                document.body.style.display = 'block';
             }
         }
 
-        // ── Stats ─────────────────────────────────────────────────
-        function updateStats() {
-            const total = allInvites.length;
-            const confirme = allInvites.filter(i => i.rsvp === 'confirme').length;
-            const decline = allInvites.filter(i => i.rsvp === 'decline').length;
-            const attente = allInvites.filter(i => i.rsvp === 'en attente').length;
+        // Lancer la vérification au chargement
+        checkAuth();
 
-            document.getElementById('statTotal').textContent = total;
-            document.getElementById('statConfirme').textContent = confirme;
-            document.getElementById('statDecline').textContent = decline;
-            document.getElementById('statAttente').textContent = attente;
-        }
-
-        // ── Rendu table ───────────────────────────────────────────
-        function renderTable() {
-            const search = document.getElementById('searchInput').value.toLowerCase();
-
-            const filtered = allInvites.filter(invite => {
-                const matchSearch = invite.nom.toLowerCase().includes(search);
-                const matchFilter = currentFilter === 'tous' || invite.rsvp === currentFilter;
-                return matchSearch && matchFilter;
-            });
-
-            const tbody = document.getElementById('tableBody');
-
-            if (filtered.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="4" class="empty">Aucun invité trouvé.</td></tr>`;
-                return;
-            }
-
-            tbody.innerHTML = filtered.map((invite, i) => {
-                const lien = `${SITE_URL}/index.html?token=${invite.token}`;
-                const badge = getBadge(invite.rsvp);
-
-                return `
-                <tr class="row-anim" style="animation-delay:${i * 0.04}s">
-                    <td><strong>${invite.nom}</strong></td>
-                    <td>${invite.places} place${invite.places > 1 ? 's' : ''}</td>
-                    <td>${badge}</td>
-                    <td>
-                        <div class="lien-cell">
-                            <span class="lien-text" title="${lien}">${lien}</span>
-                            <button class="btn-copy" onclick="copyLink(this, '${lien}')">Copier</button>
-                        </div>
-                    </td>
-                </tr>`;
-            }).join('');
-        }
-
-        function getBadge(rsvp) {
-            if (rsvp === 'confirme') return `<span class="badge badge-confirme">✓ Confirmé</span>`;
-            if (rsvp === 'decline') return `<span class="badge badge-decline">✗ Décliné</span>`;
-            return `<span class="badge badge-attente">⏳ En attente</span>`;
-        }
-
-        // ── Copier lien ───────────────────────────────────────────
-        function copyLink(btn, lien) {
-            navigator.clipboard.writeText(lien).then(() => {
-                btn.textContent = '✓ Copié !';
-                btn.classList.add('copied');
-                setTimeout(() => {
-                    btn.textContent = 'Copier';
-                    btn.classList.remove('copied');
-                }, 2000);
-            });
-        }
-
-        // ── Filtre ────────────────────────────────────────────────
-        function setFilter(filter, btn) {
-            currentFilter = filter;
-            document.querySelectorAll('.filter-btn').forEach(b => {
-                b.classList.remove('active', 'active-vert', 'active-rouge');
-            });
-            if (filter === 'confirme') btn.classList.add('active-vert');
-            else if (filter === 'decline') btn.classList.add('active-rouge');
-            else btn.classList.add('active');
-            renderTable();
-        }
-
-        // ── Recherche ─────────────────────────────────────────────
-        document.getElementById('searchInput').addEventListener('input', renderTable);
-
-        // ── Init ──────────────────────────────────────────────────
-        loadInvites();
+        // 2. Gérer la déconnexion
+        document.getElementById('logoutBtn').addEventListener('click', async () => {
+            await supabase.auth.signOut();
+            window.location.replace('login.html');
+        });
     </script>
-
 </body>
 </html>
