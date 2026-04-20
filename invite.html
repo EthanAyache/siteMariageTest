@@ -526,9 +526,9 @@
                     token: currentToken,
                     rsvp: reponse,
                     mairie: mairie.value,
-                    nb_mairie: mairie.value === 'oui' ? nbMairie : 0,
+                    nb_mairie: mairie.value === 'oui' ? parseInt(nbMairie) : 0,
                     houppa: houppa.value,
-                    nb_houppa: houppa.value === 'oui' ? nbHouppa : 0,
+                    nb_houppa: houppa.value === 'oui' ? parseInt(nbHouppa) : 0,
                     message: message
                 };
 
