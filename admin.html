@@ -333,6 +333,7 @@
             <button class="filter-btn" onclick="setFilter('confirme', this)">Confirmés</button>
             <button class="filter-btn" onclick="setFilter('decline', this)">Déclinés</button>
             <button class="filter-btn" onclick="setFilter('en attente', this)">En attente</button>
+            <button class="filter-btn" style="margin-left: auto; background-color: var(--or); color: #fff; border-color: var(--or);" onclick="downloadCSV()">📥 Exporter Excel/CSV</button>
         </div>
 
         <!-- Table -->
@@ -383,12 +384,14 @@
         // ── Chargement ────────────────────────────────────────────
         async function loadInvites() {
             try {
-                const res = await fetch('/api/get-all-invites');
-                if (!res.ok) throw new Error();
-                allInvites = await res.json();
+                const { data, error } = await supabaseClient.from('invites').select('*');
+                if (error) throw error;
+                
+                allInvites = data || [];
                 updateStats();
                 renderTable();
-            } catch {
+            } catch (err) {
+                console.error("Erreur Supabase:", err);
                 document.getElementById('tableBody').innerHTML = `
                     <tr><td colspan="4" class="empty">Erreur de chargement. L'API ou la base de données n'est pas encore connectée.</td></tr>`;
             }
@@ -475,6 +478,42 @@
 
         // ── Recherche ─────────────────────────────────────────────
         document.getElementById('searchInput').addEventListener('input', renderTable);
+
+        // ── Téléchargement CSV (Excel) ────────────────────────────
+        function downloadCSV() {
+            if (!allInvites || allInvites.length === 0) {
+                alert("Aucune donnée à exporter pour le moment.");
+                return;
+            }
+
+            // Récupère toutes les colonnes possibles parmi les objets de allInvites
+            const keys = Array.from(new Set(allInvites.flatMap(Object.keys)));
+            
+            // Ajoute le BOM (\uFEFF) pour qu'Excel comprenne que le fichier est en UTF-8 (pour les accents)
+            let csvContent = "\uFEFF"; 
+            
+            // Ligne d'en-tête
+            csvContent += keys.join(';') + "\n";
+
+            // Lignes de données
+            allInvites.forEach(invite => {
+                const row = keys.map(key => {
+                    let cellValue = invite[key] === null || invite[key] === undefined ? "" : String(invite[key]);
+                    // Échappe les guillemets et encapsule la cellule pour éviter les problèmes avec les retours à la ligne ou les points-virgules dans le texte
+                    return `"${cellValue.replace(/"/g, '""')}"`;
+                });
+                csvContent += row.join(';') + "\n";
+            });
+
+            // Création du fichier et lancement du téléchargement
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement("a");
+            link.href = URL.createObjectURL(blob);
+            link.download = "invites_mariage_salomee_ethan.csv";
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
 
         // ── Init ──────────────────────────────────────────────────
         checkAuth(); // On lance la vérification en premier !

@@ -6,6 +6,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Salomée & Ethan - Votre Invitation</title>
     <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Lato:wght@300;400&display=swap" rel="stylesheet">
+    <!-- Import de Supabase -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         html, body {
             width: 100%;
@@ -404,6 +406,11 @@
         // ── Chargement invité ────────────────────────────────────
         let currentToken = null;
 
+        // INITIALISATION DE SUPABASE
+        const SUPABASE_URL = 'https://ingtrfzjxbtjzisctuyo.supabase.co';
+        const SUPABASE_ANON_KEY = 'sb_publishable_bzP_bkQglIR0yTB4kZiITg_wFnq6m3h';
+        const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
         // ── Logique Formulaire RSVP ──────────────────────────────
         function toggleCount(elementId, show) {
             const element = document.getElementById(elementId);
@@ -421,9 +428,10 @@
             currentToken = token;
 
             try {
-                const res = await fetch(`/api/get-invite?token=${token}`);
-                if (!res.ok) throw new Error();
-                const invite = await res.json();
+                // Récupère l'invité depuis Supabase grâce à son token
+                const { data: invite, error } = await supabaseClient.from('invites').select('*').eq('token', token).single();
+                if (error || !invite) throw error || new Error("Invité introuvable");
+                
                 displayInvite(invite);
             } catch {
                 showError();
@@ -516,13 +524,23 @@
                 };
 
                 try {
-                    await fetch('/api/rsvp', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify(payload)
-                    });
+                    // Met à jour la réponse dans Supabase
+                    const { error } = await supabaseClient
+                        .from('invites')
+                        .update({
+                            rsvp: payload.rsvp,
+                            mairie: payload.mairie,
+                            nb_mairie: payload.nb_mairie,
+                            houppa: payload.houppa,
+                            nb_houppa: payload.nb_houppa,
+                            message: payload.message
+                        })
+                        .eq('token', currentToken);
+
+                    if (error) throw error;
                     showConfirmation(reponse, true);
-                } catch {
+                } catch (err) {
+                    console.error("Erreur de sauvegarde:", err);
                     alert("Une erreur est survenue, veuillez réessayer.");
                 }
             }
