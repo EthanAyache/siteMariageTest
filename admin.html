@@ -36,7 +36,7 @@
         button:hover { background-color: #333; }
     </style>
 </head>
-<body style="display: none;"> <!-- Le body est caché par défaut pour éviter le clignotement -->
+<body> <!-- Affichage rétabli pour éviter la page blanche en cas d'erreur -->
     
     <div class="header">
         <h1>Tableau de Bord Admin</h1>
@@ -60,9 +60,6 @@
             if (!session) {
                 // Pas de session, retour au login
                 window.location.replace('login.html');
-            } else {
-                // L'utilisateur est connecté, on affiche la page
-                document.body.style.display = 'block';
             }
         }
 
