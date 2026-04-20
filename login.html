@@ -50,7 +50,7 @@
         // INITIALISATION DE SUPABASE (Remplace par tes clés)
         const SUPABASE_URL = 'https://ingtrfzjxbtjzisctuyo.supabase.co';
         const SUPABASE_ANON_KEY = 'sb_publishable_bzP_bkQglIR0yTB4kZiITg_wFnq6m3h';
-        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
         document.getElementById('loginForm').addEventListener('submit', async (e) => {
             e.preventDefault();
@@ -59,7 +59,7 @@
             const errorMsg = document.getElementById('errorMsg');
 
             // Tentative de connexion via Supabase
-            const { data, error } = await supabase.auth.signInWithPassword({
+            const { data, error } = await supabaseClient.auth.signInWithPassword({
                 email: email,
                 password: password
             });

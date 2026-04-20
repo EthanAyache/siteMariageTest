@@ -51,11 +51,11 @@
         // INITIALISATION DE SUPABASE (Remplace par tes clés)
         const SUPABASE_URL = 'https://ingtrfzjxbtjzisctuyo.supabase.co';
         const SUPABASE_ANON_KEY = 'sb_publishable_bzP_bkQglIR0yTB4kZiITg_wFnq6m3h';
-        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
         // 1. Vérification de la sécurité (Est-on connecté ?)
         async function checkAuth() {
-            const { data: { session } } = await supabase.auth.getSession();
+            const { data: { session } } = await supabaseClient.auth.getSession();
             
             if (!session) {
                 // Pas de session, retour au login
@@ -68,7 +68,7 @@
 
         // 2. Gérer la déconnexion
         document.getElementById('logoutBtn').addEventListener('click', async () => {
-            await supabase.auth.signOut();
+            await supabaseClient.auth.signOut();
             window.location.replace('login.html');
         });
     </script>
