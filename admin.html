@@ -374,10 +374,21 @@
                             <th>Places</th>
                             <th>Statut</th>
                             <th>Lien personnalisé</th>
+                            <th>Actions</th>
+                        </tr>
+                        <!-- Ligne d'ajout rapide -->
+                        <tr style="background: rgba(212,175,55,0.05); border-bottom: 2px solid rgba(212,175,55,0.2);">
+                            <td style="padding: 0.8rem 1.5rem;"><input type="text" id="quickAddName" placeholder="Nom du nouvel invité..." class="search-input" style="width: 100%; padding: 8px 12px; border-radius: 6px;" onkeypress="if(event.key === 'Enter') quickAddGuest(document.getElementById('quickAddBtn'))"></td>
+                            <td style="padding: 0.8rem 1.5rem;"><input type="number" id="quickAddPlaces" value="1" min="1" class="search-input" style="width: 70px; padding: 8px 12px; border-radius: 6px;" onkeypress="if(event.key === 'Enter') quickAddGuest(document.getElementById('quickAddBtn'))"></td>
+                            <td style="padding: 0.8rem 1.5rem;"><span class="badge badge-attente" style="background: transparent; border: 1px dashed var(--or-dark);">Nouveau</span></td>
+                            <td style="padding: 0.8rem 1.5rem; color: var(--gris); font-size: 0.8rem;">Généré auto.</td>
+                            <td style="padding: 0.8rem 1.5rem;">
+                                <button id="quickAddBtn" class="filter-btn active" style="padding: 8px 15px; border-radius: 6px; margin: 0; width: 100%; box-shadow: 0 2px 5px rgba(212,175,55,0.3);" onclick="quickAddGuest(this)">➕ Ajouter</button>
+                            </td>
                         </tr>
                     </thead>
                     <tbody id="tableBody">
-                        <tr class="loading-row"><td colspan="4">Chargement des invités...</td></tr>
+                        <tr class="loading-row"><td colspan="5">Chargement des invités...</td></tr>
                     </tbody>
                 </table>
             </div>
@@ -398,7 +409,7 @@
         <!-- Modal d'ajout / modification -->
         <div id="guestModal" class="modal-overlay">
             <div class="modal-content">
-                <h3 id="modalTitle">Ajouter un invité</h3>
+                <h3 id="modalTitle">Modifier un invité</h3>
                 <form id="guestForm" onsubmit="saveGuest(event)">
                     <input type="hidden" id="guestToken">
                     <div class="form-group">
@@ -679,12 +690,41 @@
         }
 
         // ── Gestion Ajout/Modification/Suppression ────────────────
-        function openAddModal() {
-            document.getElementById('modalTitle').textContent = "Ajouter un invité";
-            document.getElementById('guestToken').value = "";
-            document.getElementById('guestName').value = "";
-            document.getElementById('guestPlaces').value = "1";
-            document.getElementById('guestModal').classList.add('active');
+        async function quickAddGuest(btn) {
+            const nameInput = document.getElementById('quickAddName');
+            const placesInput = document.getElementById('quickAddPlaces');
+            const nom = nameInput.value.trim();
+            const places = parseInt(placesInput.value, 10);
+
+            if (!nom) {
+                alert("Veuillez saisir un nom pour l'invité.");
+                nameInput.focus();
+                return;
+            }
+
+            btn.textContent = '⏳...';
+            btn.disabled = true;
+
+            try {
+                const { error } = await supabaseClient.from('invites').insert([{ 
+                    nom: nom, 
+                    places: isNaN(places) ? 1 : places, 
+                    token: generateToken(), 
+                    rsvp: 'en attente' 
+                }]);
+                if (error) throw error;
+                
+                nameInput.value = '';
+                placesInput.value = '1';
+                nameInput.focus(); // Prêt à taper le suivant
+                loadInvites(); // Recharge le tableau
+            } catch (err) {
+                console.error("Erreur d'ajout rapide:", err);
+                alert("Erreur lors de l'ajout de l'invité.");
+            } finally {
+                btn.textContent = '➕ Ajouter';
+                btn.disabled = false;
+            }
         }
 
         function openEditModal(token) {
