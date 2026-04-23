@@ -21,7 +21,7 @@
             --rouge: #e07070;
             --orange: #e0a070;
         }
-        
+
         .detail-line { font-size: 0.9rem; color: var(--texte); margin-top: 0.6rem; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px dashed rgba(0,0,0,0.05); padding-bottom: 0.4rem; }
         .detail-line:last-child { border-bottom: none; }
 
@@ -62,7 +62,7 @@
         }
         .btn-retour:hover { background: var(--or); color: #fff; }
 
-        main { max-width: 1100px; margin: 0 auto; padding: 3rem 2rem; }
+        main { max-width: 1200px; margin: 0 auto; padding: 3rem 2rem; }
 
         /* Stats */
         .stats {
@@ -166,9 +166,16 @@
             border-radius: 16px;
             box-shadow: 0 4px 30px rgba(0,0,0,0.06);
             overflow: hidden;
+            /* FIX: allow horizontal scroll on small screens instead of clipping */
+            overflow-x: auto;
         }
 
-        table { width: 100%; border-collapse: collapse; }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            /* FIX: enforce minimum width so all columns are always visible */
+            min-width: 750px;
+        }
 
         thead {
             background: linear-gradient(135deg, #faf7f0, #f3eeeb);
@@ -176,17 +183,25 @@
         }
 
         th {
-            padding: 1rem 1.5rem;
+            padding: 1rem 1.2rem;
             text-align: left;
             font-size: 0.7rem;
             text-transform: uppercase;
             letter-spacing: 2px;
             color: var(--or);
             font-weight: 700;
+            white-space: nowrap;
         }
 
+        /* FIX: fix column widths so "Actions" is never clipped */
+        th:nth-child(1) { width: 25%; }
+        th:nth-child(2) { width: 10%; }
+        th:nth-child(3) { width: 14%; }
+        th:nth-child(4) { width: 37%; }
+        th:nth-child(5) { width: 14%; min-width: 110px; }
+
         td {
-            padding: 1rem 1.5rem;
+            padding: 1rem 1.2rem;
             border-bottom: 1px solid rgba(0,0,0,0.04);
             font-size: 0.9rem;
             vertical-align: middle;
@@ -209,14 +224,23 @@
         .badge-confirme { background: #e8f5e8; color: #4a9a4a; }
         .badge-decline { background: #fde8e8; color: #c05050; }
 
-        .lien-cell { display: flex; align-items: center; gap: 0.5rem; }
+        .lien-cell { display: flex; align-items: center; gap: 0.5rem; flex-wrap: nowrap; }
         .lien-text {
             font-size: 0.78rem;
             color: var(--gris);
             font-family: monospace;
-            max-width: 220px;
+            max-width: 200px;
             overflow: hidden;
             text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        /* FIX: action buttons always visible, side by side */
+        .actions-cell {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            flex-wrap: nowrap;
             white-space: nowrap;
         }
 
@@ -224,9 +248,9 @@
             background: none;
             border: 1px solid rgba(212,175,55,0.4);
             border-radius: 6px;
-            padding: 4px 10px;
+            padding: 5px 12px;
             cursor: pointer;
-            font-size: 0.75rem;
+            font-size: 0.8rem;
             color: var(--or);
             transition: all 0.2s;
             white-space: nowrap;
@@ -234,6 +258,34 @@
         }
         .btn-copy:hover { background: var(--or); color: #fff; border-color: var(--or); }
         .btn-copy.copied { background: var(--vert); color: #fff; border-color: var(--vert); }
+
+        .btn-edit {
+            background: none;
+            border: 1px solid rgba(212,175,55,0.4);
+            border-radius: 6px;
+            padding: 5px 10px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: all 0.2s;
+            white-space: nowrap;
+            font-family: 'Lato', sans-serif;
+            color: var(--or);
+        }
+        .btn-edit:hover { background: var(--or); border-color: var(--or); }
+
+        .btn-delete {
+            background: none;
+            border: 1px solid rgba(224,112,112,0.4);
+            border-radius: 6px;
+            padding: 5px 10px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: all 0.2s;
+            white-space: nowrap;
+            font-family: 'Lato', sans-serif;
+            color: var(--rouge);
+        }
+        .btn-delete:hover { background: var(--rouge); color: #fff; border-color: var(--rouge); }
 
         /* Messages */
         .messages-subtitle {
@@ -303,13 +355,127 @@
         }
         .row-anim { animation: fadeInUp 0.4s ease both; }
 
+        /* ── MODAL ─────────────────────────────────────────────── */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.4);
+            z-index: 200;
+            align-items: center;
+            justify-content: center;
+        }
+        .modal-overlay.active { display: flex; }
+
+        .modal-box {
+            background: var(--blanc);
+            border-radius: 16px;
+            padding: 2.5rem;
+            width: 100%;
+            max-width: 440px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+            animation: fadeInUp 0.3s ease both;
+            position: relative;
+        }
+
+        .modal-title {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: var(--texte);
+            margin-bottom: 1.8rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid rgba(212,175,55,0.2);
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 1.2rem;
+            right: 1.2rem;
+            background: none;
+            border: none;
+            font-size: 1.4rem;
+            cursor: pointer;
+            color: var(--gris);
+            line-height: 1;
+            padding: 4px 8px;
+            border-radius: 6px;
+            transition: all 0.2s;
+        }
+        .modal-close:hover { background: rgba(0,0,0,0.06); color: var(--texte); }
+
+        .modal-field {
+            margin-bottom: 1.4rem;
+        }
+        .modal-field label {
+            display: block;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: var(--gris);
+            margin-bottom: 0.5rem;
+            font-weight: 700;
+        }
+        .modal-field input {
+            width: 100%;
+            padding: 10px 14px;
+            border: 1px solid rgba(212,175,55,0.35);
+            border-radius: 8px;
+            font-family: 'Lato', sans-serif;
+            font-size: 0.95rem;
+            color: var(--texte);
+            background: var(--fond);
+            outline: none;
+            transition: border-color 0.2s;
+        }
+        .modal-field input:focus { border-color: var(--or); background: #fff; }
+
+        .modal-actions {
+            display: flex;
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+
+        .btn-primary {
+            flex: 1;
+            padding: 11px 20px;
+            background: var(--or);
+            color: #fff;
+            border: none;
+            border-radius: 30px;
+            font-family: 'Lato', sans-serif;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            cursor: pointer;
+            font-weight: 700;
+            transition: all 0.2s;
+        }
+        .btn-primary:hover { background: var(--or-dark); }
+        .btn-primary:disabled { opacity: 0.6; cursor: not-allowed; }
+
+        .btn-secondary {
+            padding: 11px 20px;
+            background: transparent;
+            color: var(--gris);
+            border: 1px solid rgba(0,0,0,0.15);
+            border-radius: 30px;
+            font-family: 'Lato', sans-serif;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .btn-secondary:hover { border-color: var(--gris); color: var(--texte); }
+
         @media (max-width: 768px) {
             header { padding: 1rem 1.5rem; }
             main { padding: 2rem 1rem; }
-            th, td { padding: 0.75rem 1rem; }
-            .lien-text { max-width: 120px; }
+            th, td { padding: 0.75rem 0.8rem; }
+            .lien-text { max-width: 100px; }
             .header-title { display: none; }
             .tab-btn { padding: 0.75rem 1rem; font-size: 0.75rem; letter-spacing: 1px; }
+            .modal-box { margin: 1rem; padding: 1.8rem; }
         }
     </style>
 </head>
@@ -378,11 +544,11 @@
                         </tr>
                         <!-- Ligne d'ajout rapide -->
                         <tr style="background: rgba(212,175,55,0.05); border-bottom: 2px solid rgba(212,175,55,0.2);">
-                            <td style="padding: 0.8rem 1.5rem;"><input type="text" id="quickAddName" placeholder="Nom du nouvel invité..." class="search-input" style="width: 100%; padding: 8px 12px; border-radius: 6px;" onkeypress="if(event.key === 'Enter') quickAddGuest(document.getElementById('quickAddBtn'))"></td>
-                            <td style="padding: 0.8rem 1.5rem;"><input type="number" id="quickAddPlaces" value="1" min="1" class="search-input" style="width: 70px; padding: 8px 12px; border-radius: 6px;" onkeypress="if(event.key === 'Enter') quickAddGuest(document.getElementById('quickAddBtn'))"></td>
-                            <td style="padding: 0.8rem 1.5rem;"><span class="badge badge-attente" style="background: transparent; border: 1px dashed var(--or-dark);">Nouveau</span></td>
-                            <td style="padding: 0.8rem 1.5rem; color: var(--gris); font-size: 0.8rem;">Généré auto.</td>
-                            <td style="padding: 0.8rem 1.5rem;">
+                            <td style="padding: 0.8rem 1.2rem;"><input type="text" id="quickAddName" placeholder="Nom du nouvel invité..." class="search-input" style="width: 100%; padding: 8px 12px; border-radius: 6px;" onkeypress="if(event.key === 'Enter') quickAddGuest(document.getElementById('quickAddBtn'))"></td>
+                            <td style="padding: 0.8rem 1.2rem;"><input type="number" id="quickAddPlaces" value="1" min="1" class="search-input" style="width: 70px; padding: 8px 12px; border-radius: 6px;" onkeypress="if(event.key === 'Enter') quickAddGuest(document.getElementById('quickAddBtn'))"></td>
+                            <td style="padding: 0.8rem 1.2rem;"><span class="badge badge-attente" style="background: transparent; border: 1px dashed var(--or-dark);">Nouveau</span></td>
+                            <td style="padding: 0.8rem 1.2rem; color: var(--gris); font-size: 0.8rem;">Généré auto.</td>
+                            <td style="padding: 0.8rem 1.2rem;">
                                 <button id="quickAddBtn" class="filter-btn active" style="padding: 8px 15px; border-radius: 6px; margin: 0; width: 100%; box-shadow: 0 2px 5px rgba(212,175,55,0.3);" onclick="quickAddGuest(this)">➕ Ajouter</button>
                             </td>
                         </tr>
@@ -406,29 +572,31 @@
             <div class="messages-grid" id="detailsGrid"></div>
         </div>
 
-        <!-- Modal d'ajout / modification -->
-        <div id="guestModal" class="modal-overlay">
-            <div class="modal-content">
-                <h3 id="modalTitle">Modifier un invité</h3>
-                <form id="guestForm" onsubmit="saveGuest(event)">
-                    <input type="hidden" id="guestToken">
-                    <div class="form-group">
-                        <label>Nom de l'invité ou Famille</label>
-                        <input type="text" id="guestName" required>
-                    </div>
-                    <div class="form-group">
-                        <label>Nombre de places</label>
-                        <input type="number" id="guestPlaces" min="1" value="1" required>
-                    </div>
-                    <div class="modal-actions">
-                        <button type="button" class="btn-retour" onclick="closeModal()">Annuler</button>
-                        <button type="submit" class="filter-btn active" style="margin:0;">Enregistrer</button>
-                    </div>
-                </form>
+    </main>
+
+    <!-- ── MODAL Modifier/Ajouter ─────────────────────────────── -->
+    <div class="modal-overlay" id="guestModal">
+        <div class="modal-box">
+            <button class="modal-close" onclick="closeModal()" title="Fermer">✕</button>
+            <div class="modal-title" id="modalTitle">Modifier l'invité</div>
+            <input type="hidden" id="guestToken">
+
+            <div class="modal-field">
+                <label for="guestName">Nom de l'invité</label>
+                <input type="text" id="guestName" placeholder="Ex. Famille Dupont" autocomplete="off">
+            </div>
+
+            <div class="modal-field">
+                <label for="guestPlaces">Nombre de places</label>
+                <input type="number" id="guestPlaces" value="1" min="1" max="20">
+            </div>
+
+            <div class="modal-actions">
+                <button class="btn-secondary" onclick="closeModal()">Annuler</button>
+                <button class="btn-primary" id="saveBtn" onclick="saveGuest()">Enregistrer</button>
             </div>
         </div>
-
-    </main>
+    </div>
 
     <script>
         const SITE_URL = window.location.origin;
@@ -478,7 +646,7 @@
             document.getElementById('statAttente').textContent = allInvites.filter(i => i.rsvp === 'en attente').length;
         }
 
-         // ── Badge ─────────────────────────────────────────────────
+        // ── Badge ─────────────────────────────────────────────────
         function getBadge(rsvp) {
             if (rsvp === 'confirme') return `<span class="badge badge-confirme">✓ Confirmé</span>`;
             if (rsvp === 'decline') return `<span class="badge badge-decline">✗ Décliné</span>`;
@@ -515,9 +683,9 @@
                         </div>
                     </td>
                     <td>
-                        <div class="lien-cell">
-                            <button class="btn-copy" title="Modifier" onclick="openEditModal('${invite.token}')">✏️</button>
-                            <button class="btn-copy" title="Supprimer" style="color: var(--rouge); border-color: rgba(224,112,112,0.4);" onclick="deleteGuest('${invite.token}', '${safeEscape(invite.nom)}')">🗑️</button>
+                        <div class="actions-cell">
+                            <button class="btn-edit" title="Modifier" onclick="openEditModal('${invite.token}')">✏️</button>
+                            <button class="btn-delete" title="Supprimer" onclick="deleteGuest('${invite.token}', '${safeEscape(invite.nom)}')">🗑️</button>
                         </div>
                     </td>
                 </tr>`;
@@ -633,91 +801,32 @@
             document.body.removeChild(link);
         }
 
-        // ── Import CSV ────────────────────────────────────────────
+        // ── Token ─────────────────────────────────────────────────
         function generateToken() {
-            // Génère une chaîne aléatoire unique pour servir de lien d'invitation
             return Math.random().toString(36).substr(2, 9) + Math.random().toString(36).substr(2, 9);
         }
 
-        async function importCSV(event) {
-            const file = event.target.files[0];
-            if (!file) return;
-
-            const reader = new FileReader();
-            reader.onload = async function(e) {
-                const text = e.target.result;
-                const lines = text.split('\n');
-                const newInvites = [];
-
-                // On ignore la première ligne (i=1) car on suppose que c'est l'entête du tableau
-                for (let i = 1; i < lines.length; i++) {
-                    const line = lines[i].trim();
-                    if (!line) continue;
-                    
-                    // Supporte la séparation par point-virgule (Excel) ou virgule classique
-                    const cols = line.split(/[;,]/); 
-                    if (cols.length >= 1 && cols[0].trim() !== '') {
-                        const nom = cols[0].trim();
-                        const places = cols[1] ? parseInt(cols[1].trim(), 10) : 1;
-                        
-                        newInvites.push({
-                            nom: nom,
-                            places: isNaN(places) ? 1 : places,
-                            token: generateToken(),
-                            rsvp: 'en attente'
-                        });
-                    }
-                }
-
-                if (newInvites.length > 0) {
-                    if (confirm(`Êtes-vous sûr de vouloir importer ${newInvites.length} invités ?`)) {
-                        try {
-                            const { error } = await supabaseClient.from('invites').insert(newInvites);
-                            if (error) throw error;
-                            alert('Importation réussie !');
-                            loadInvites(); // Recharge le tableau automatiquement
-                        } catch (err) {
-                            console.error("Erreur d'importation:", err);
-                            alert("Une erreur est survenue lors de l'importation. Avez-vous les bons droits ?");
-                        }
-                    }
-                } else {
-                    alert("Aucun invité valide trouvé dans le fichier.");
-                }
-                event.target.value = ''; // Réinitialise l'input file pour permettre un autre import
-            };
-            reader.readAsText(file);
-        }
-
-        // ── Gestion Ajout/Modification/Suppression ────────────────
+        // ── Ajout rapide ──────────────────────────────────────────
         async function quickAddGuest(btn) {
             const nameInput = document.getElementById('quickAddName');
             const placesInput = document.getElementById('quickAddPlaces');
             const nom = nameInput.value.trim();
             const places = parseInt(placesInput.value, 10);
 
-            if (!nom) {
-                alert("Veuillez saisir un nom pour l'invité.");
-                nameInput.focus();
-                return;
-            }
+            if (!nom) { alert("Veuillez saisir un nom pour l'invité."); nameInput.focus(); return; }
 
             btn.textContent = '⏳...';
             btn.disabled = true;
 
             try {
-                const { error } = await supabaseClient.from('invites').insert([{ 
-                    nom: nom, 
-                    places: isNaN(places) ? 1 : places, 
-                    token: generateToken(), 
-                    rsvp: 'en attente' 
+                const { error } = await supabaseClient.from('invites').insert([{
+                    nom, places: isNaN(places) ? 1 : places, token: generateToken(), rsvp: 'en attente'
                 }]);
                 if (error) throw error;
-                
                 nameInput.value = '';
                 placesInput.value = '1';
-                nameInput.focus(); // Prêt à taper le suivant
-                loadInvites(); // Recharge le tableau
+                nameInput.focus();
+                loadInvites();
             } catch (err) {
                 console.error("Erreur d'ajout rapide:", err);
                 alert("Erreur lors de l'ajout de l'invité.");
@@ -727,6 +836,7 @@
             }
         }
 
+        // ── Modal ─────────────────────────────────────────────────
         function openEditModal(token) {
             const invite = allInvites.find(i => i.token === token);
             if (!invite) return;
@@ -735,40 +845,50 @@
             document.getElementById('guestName').value = invite.nom;
             document.getElementById('guestPlaces').value = invite.places || 1;
             document.getElementById('guestModal').classList.add('active');
+            setTimeout(() => document.getElementById('guestName').focus(), 100);
         }
 
         function closeModal() {
             document.getElementById('guestModal').classList.remove('active');
         }
 
-        async function saveGuest(e) {
-            e.preventDefault();
+        // Fermer la modal en cliquant sur le fond
+        document.getElementById('guestModal').addEventListener('click', function(e) {
+            if (e.target === this) closeModal();
+        });
+
+        // Fermer la modal avec Escape
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') closeModal();
+        });
+
+        async function saveGuest() {
             const token = document.getElementById('guestToken').value;
             const nom = document.getElementById('guestName').value.trim();
             const places = parseInt(document.getElementById('guestPlaces').value, 10);
-            
-            const submitBtn = e.target.querySelector('button[type="submit"]');
-            submitBtn.textContent = 'En cours...';
-            submitBtn.disabled = true;
+
+            if (!nom) { alert("Veuillez saisir un nom."); return; }
+
+            const saveBtn = document.getElementById('saveBtn');
+            saveBtn.textContent = 'En cours...';
+            saveBtn.disabled = true;
 
             try {
                 if (token) {
-                    // Mode modification
                     const { error } = await supabaseClient.from('invites').update({ nom, places }).eq('token', token);
                     if (error) throw error;
                 } else {
-                    // Mode ajout
                     const { error } = await supabaseClient.from('invites').insert([{ nom, places, token: generateToken(), rsvp: 'en attente' }]);
                     if (error) throw error;
                 }
                 closeModal();
-                loadInvites(); // Recharge le tableau automatiquement
+                loadInvites();
             } catch (err) {
                 console.error("Erreur de sauvegarde:", err);
                 alert("Erreur lors de la sauvegarde.");
             } finally {
-                submitBtn.textContent = 'Enregistrer';
-                submitBtn.disabled = false;
+                saveBtn.textContent = 'Enregistrer';
+                saveBtn.disabled = false;
             }
         }
 
