@@ -455,7 +455,7 @@
             } catch (err) {
                 console.error("Erreur Supabase:", err);
                 document.getElementById('tableBody').innerHTML =
-                    `<tr><td colspan="4" class="empty">Erreur de chargement.</td></tr>`;
+                    `<tr><td colspan="5" class="empty">Erreur de chargement.</td></tr>`;
             }
         }
 
@@ -485,10 +485,11 @@
 
             const tbody = document.getElementById('tableBody');
             if (filtered.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="4" class="empty">Aucun invité trouvé.</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="5" class="empty">Aucun invité trouvé.</td></tr>`;
                 return;
             }
 
+            const safeEscape = (str) => String(str).replace(/'/g, "\\'").replace(/"/g, "&quot;");
             tbody.innerHTML = filtered.map((invite, i) => {
                 const lien = `${SITE_URL}/invite.html?token=${invite.token}`;
                 return `
@@ -500,6 +501,12 @@
                         <div class="lien-cell">
                             <span class="lien-text" title="${lien}">${lien}</span>
                             <button class="btn-copy" onclick="copyLink(this, '${lien}')">Copier</button>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="lien-cell">
+                            <button class="btn-copy" title="Modifier" onclick="openEditModal('${invite.token}')">✏️</button>
+                            <button class="btn-copy" title="Supprimer" style="color: var(--rouge); border-color: rgba(224,112,112,0.4);" onclick="deleteGuest('${invite.token}', '${safeEscape(invite.nom)}')">🗑️</button>
                         </div>
                     </td>
                 </tr>`;
@@ -669,6 +676,73 @@
                 event.target.value = ''; // Réinitialise l'input file pour permettre un autre import
             };
             reader.readAsText(file);
+        }
+
+        // ── Gestion Ajout/Modification/Suppression ────────────────
+        function openAddModal() {
+            document.getElementById('modalTitle').textContent = "Ajouter un invité";
+            document.getElementById('guestToken').value = "";
+            document.getElementById('guestName').value = "";
+            document.getElementById('guestPlaces').value = "1";
+            document.getElementById('guestModal').classList.add('active');
+        }
+
+        function openEditModal(token) {
+            const invite = allInvites.find(i => i.token === token);
+            if (!invite) return;
+            document.getElementById('modalTitle').textContent = "Modifier l'invité";
+            document.getElementById('guestToken').value = invite.token;
+            document.getElementById('guestName').value = invite.nom;
+            document.getElementById('guestPlaces').value = invite.places || 1;
+            document.getElementById('guestModal').classList.add('active');
+        }
+
+        function closeModal() {
+            document.getElementById('guestModal').classList.remove('active');
+        }
+
+        async function saveGuest(e) {
+            e.preventDefault();
+            const token = document.getElementById('guestToken').value;
+            const nom = document.getElementById('guestName').value.trim();
+            const places = parseInt(document.getElementById('guestPlaces').value, 10);
+            
+            const submitBtn = e.target.querySelector('button[type="submit"]');
+            submitBtn.textContent = 'En cours...';
+            submitBtn.disabled = true;
+
+            try {
+                if (token) {
+                    // Mode modification
+                    const { error } = await supabaseClient.from('invites').update({ nom, places }).eq('token', token);
+                    if (error) throw error;
+                } else {
+                    // Mode ajout
+                    const { error } = await supabaseClient.from('invites').insert([{ nom, places, token: generateToken(), rsvp: 'en attente' }]);
+                    if (error) throw error;
+                }
+                closeModal();
+                loadInvites(); // Recharge le tableau automatiquement
+            } catch (err) {
+                console.error("Erreur de sauvegarde:", err);
+                alert("Erreur lors de la sauvegarde.");
+            } finally {
+                submitBtn.textContent = 'Enregistrer';
+                submitBtn.disabled = false;
+            }
+        }
+
+        async function deleteGuest(token, nom) {
+            if (confirm(`Êtes-vous sûr de vouloir supprimer "${nom}" ?\nCette action est irréversible.`)) {
+                try {
+                    const { error } = await supabaseClient.from('invites').delete().eq('token', token);
+                    if (error) throw error;
+                    loadInvites();
+                } catch (err) {
+                    console.error("Erreur de suppression:", err);
+                    alert("Erreur lors de la suppression.");
+                }
+            }
         }
 
         // ── Init ──────────────────────────────────────────────────
