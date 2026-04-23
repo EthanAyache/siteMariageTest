@@ -21,6 +21,9 @@
             --rouge: #e07070;
             --orange: #e0a070;
         }
+        
+        .detail-line { font-size: 0.9rem; color: var(--texte); margin-top: 0.6rem; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px dashed rgba(0,0,0,0.05); padding-bottom: 0.4rem; }
+        .detail-line:last-child { border-bottom: none; }
 
         body {
             background-color: var(--fond);
@@ -349,6 +352,7 @@
         <div class="tab-nav">
             <button class="tab-btn active" onclick="switchTab('invites', this)">👥 Invités</button>
             <button class="tab-btn" onclick="switchTab('messages', this)">💬 Messages <span id="msgCount"></span></button>
+            <button class="tab-btn" onclick="switchTab('details', this)">📋 Détails RSVP</button>
         </div>
 
         <!-- Panel Invités -->
@@ -385,6 +389,34 @@
             <div class="messages-grid" id="messagesGrid"></div>
         </div>
 
+        <!-- Panel Détails RSVP -->
+        <div class="tab-panel" id="panel-details">
+            <p class="messages-subtitle" id="detailsSubtitle">Chargement...</p>
+            <div class="messages-grid" id="detailsGrid"></div>
+        </div>
+
+        <!-- Modal d'ajout / modification -->
+        <div id="guestModal" class="modal-overlay">
+            <div class="modal-content">
+                <h3 id="modalTitle">Ajouter un invité</h3>
+                <form id="guestForm" onsubmit="saveGuest(event)">
+                    <input type="hidden" id="guestToken">
+                    <div class="form-group">
+                        <label>Nom de l'invité ou Famille</label>
+                        <input type="text" id="guestName" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Nombre de places</label>
+                        <input type="number" id="guestPlaces" min="1" value="1" required>
+                    </div>
+                    <div class="modal-actions">
+                        <button type="button" class="btn-retour" onclick="closeModal()">Annuler</button>
+                        <button type="submit" class="filter-btn active" style="margin:0;">Enregistrer</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
     </main>
 
     <script>
@@ -419,6 +451,7 @@
                 updateStats();
                 renderTable();
                 renderMessages();
+                renderDetails();
             } catch (err) {
                 console.error("Erreur Supabase:", err);
                 document.getElementById('tableBody').innerHTML =
@@ -501,6 +534,37 @@
             `).join('');
         }
 
+        // ── Détails RSVP ──────────────────────────────────────────
+        function renderDetails() {
+            const aRepondu = allInvites.filter(i => i.rsvp === 'confirme' || i.rsvp === 'decline');
+            const grid = document.getElementById('detailsGrid');
+            const subtitle = document.getElementById('detailsSubtitle');
+
+            if (aRepondu.length === 0) {
+                subtitle.textContent = 'Aucune réponse pour le moment';
+                grid.innerHTML = `<div class="messages-empty">📋 Les détails des présences apparaîtront ici une fois que vos invités auront répondu.</div>`;
+                return;
+            }
+
+            subtitle.textContent = `${aRepondu.length} réponse${aRepondu.length > 1 ? 's' : ''}`;
+
+            grid.innerHTML = aRepondu.map((invite, i) => {
+                const places = invite.places || 1;
+                const textMairie = invite.mairie === 'oui' ? `<span style="color: var(--vert)">Oui (${invite.nb_mairie || 0}/${places})</span>` : `<span style="color: var(--rouge)">Non</span>`;
+                const textHouppa = invite.houppa === 'oui' ? `<span style="color: var(--vert)">Oui (${invite.nb_houppa || 0}/${places})</span>` : `<span style="color: var(--rouge)">Non</span>`;
+
+                return `
+                <div class="message-card row-anim" style="animation-delay:${i * 0.06}s">
+                    <div class="message-card-header" style="margin-bottom: 0.5rem;">
+                        <span class="message-author">${invite.nom}</span>
+                        ${getBadge(invite.rsvp)}
+                    </div>
+                    <div class="detail-line"><span>Mairie & After :</span> <strong>${textMairie}</strong></div>
+                    <div class="detail-line"><span>Houppa & Réc. :</span> <strong>${textHouppa}</strong></div>
+                </div>`;
+            }).join('');
+        }
+
         // ── Onglets ───────────────────────────────────────────────
         function switchTab(tab, btn) {
             document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
@@ -549,6 +613,62 @@
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);
+        }
+
+        // ── Import CSV ────────────────────────────────────────────
+        function generateToken() {
+            // Génère une chaîne aléatoire unique pour servir de lien d'invitation
+            return Math.random().toString(36).substr(2, 9) + Math.random().toString(36).substr(2, 9);
+        }
+
+        async function importCSV(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = async function(e) {
+                const text = e.target.result;
+                const lines = text.split('\n');
+                const newInvites = [];
+
+                // On ignore la première ligne (i=1) car on suppose que c'est l'entête du tableau
+                for (let i = 1; i < lines.length; i++) {
+                    const line = lines[i].trim();
+                    if (!line) continue;
+                    
+                    // Supporte la séparation par point-virgule (Excel) ou virgule classique
+                    const cols = line.split(/[;,]/); 
+                    if (cols.length >= 1 && cols[0].trim() !== '') {
+                        const nom = cols[0].trim();
+                        const places = cols[1] ? parseInt(cols[1].trim(), 10) : 1;
+                        
+                        newInvites.push({
+                            nom: nom,
+                            places: isNaN(places) ? 1 : places,
+                            token: generateToken(),
+                            rsvp: 'en attente'
+                        });
+                    }
+                }
+
+                if (newInvites.length > 0) {
+                    if (confirm(`Êtes-vous sûr de vouloir importer ${newInvites.length} invités ?`)) {
+                        try {
+                            const { error } = await supabaseClient.from('invites').insert(newInvites);
+                            if (error) throw error;
+                            alert('Importation réussie !');
+                            loadInvites(); // Recharge le tableau automatiquement
+                        } catch (err) {
+                            console.error("Erreur d'importation:", err);
+                            alert("Une erreur est survenue lors de l'importation. Avez-vous les bons droits ?");
+                        }
+                    }
+                } else {
+                    alert("Aucun invité valide trouvé dans le fichier.");
+                }
+                event.target.value = ''; // Réinitialise l'input file pour permettre un autre import
+            };
+            reader.readAsText(file);
         }
 
         // ── Init ──────────────────────────────────────────────────

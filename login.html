@@ -47,7 +47,7 @@
     </div>
 
     <script>
-        // INITIALISATION DE SUPABASE (Remplace par tes clés)
+        // INITIALISATION DE SUPABASE
         const SUPABASE_URL = 'https://ingtrfzjxbtjzisctuyo.supabase.co';
         const SUPABASE_ANON_KEY = 'sb_publishable_bzP_bkQglIR0yTB4kZiITg_wFnq6m3h';
         const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
@@ -57,6 +57,12 @@
             const email = document.getElementById('email').value;
             const password = document.getElementById('password').value;
             const errorMsg = document.getElementById('errorMsg');
+            const submitBtn = e.target.querySelector('button[type="submit"]');
+
+            // Réinitialisation de l'état
+            errorMsg.style.display = 'none';
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Connexion en cours...';
 
             // Tentative de connexion via Supabase
             const { data, error } = await supabaseClient.auth.signInWithPassword({
@@ -65,9 +71,11 @@
             });
 
             if (error) {
-                console.error("Erreur Supabase :", error);
-                errorMsg.textContent = "Erreur : " + error.message;
+                console.error("Erreur de connexion :", error);
+                errorMsg.textContent = "Identifiants incorrects ou erreur de connexion.";
                 errorMsg.style.display = 'block';
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Se connecter';
             } else {
                 // Succès ! Redirection vers la page admin
                 window.location.href = 'admin.html';

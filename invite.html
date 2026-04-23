@@ -17,13 +17,11 @@
         }
 
         body {
-            margin: 0;
             padding-top: 70px;
             background-color: #f3eeeb;
             color: #4a4a4a;
             font-family: 'Lato', sans-serif;
             text-align: center;
-            overflow-x: hidden;
         }
 
         h1, h2, h3 { color: #D4AF37; font-weight: normal; }
@@ -442,7 +440,8 @@
                 if (error || !invite) throw error || new Error("Invité introuvable");
                 
                 displayInvite(invite);
-            } catch {
+            } catch (err) {
+                console.error("Erreur lors du chargement de l'invitation:", err);
                 showError();
             }
         }
@@ -515,6 +514,10 @@
             }
 
             if (isValid) {
+                const submitBtn = document.querySelector('.btn-confirm');
+                submitBtn.disabled = true;
+                submitBtn.textContent = 'Envoi en cours...';
+
                 const message = document.getElementById('guestMessage').value;
                 const nbMairie = document.getElementById('nbMairie').value;
                 const nbHouppa = document.getElementById('nbHouppa').value;
@@ -526,9 +529,9 @@
                     token: currentToken,
                     rsvp: reponse,
                     mairie: mairie.value,
-                    nb_mairie: mairie.value === 'oui' ? parseInt(nbMairie) : 0,
+                    nb_mairie: mairie.value === 'oui' ? parseInt(nbMairie, 10) : 0,
                     houppa: houppa.value,
-                    nb_houppa: houppa.value === 'oui' ? parseInt(nbHouppa) : 0,
+                    nb_houppa: houppa.value === 'oui' ? parseInt(nbHouppa, 10) : 0,
                     message: message
                 };
 
@@ -550,7 +553,9 @@
                     showConfirmation(reponse, true);
                 } catch (err) {
                     console.error("Erreur de sauvegarde:", err);
-                    alert("Une erreur est survenue, veuillez réessayer.");
+                    alert("Une erreur est survenue lors de l'envoi de votre réponse, veuillez réessayer.");
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = 'Envoyer ma réponse';
                 }
             }
         }
