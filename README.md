@@ -1,6 +1,6 @@
-# Projet : Site de Mariage - Salomée & Ethan 💍
+# Projet : Site de Mariage 
 
-Ce projet a pour but de créer le meilleur site de mariage possible afin de présenter les informations de l'événement (prévu le 20 Février 2027) et de permettre aux invités de confirmer leur présence facilement.
+Ce projet a pour but de créer le meilleur site de mariage possible et de permettre aux invités de confirmer leur présence facilement.
 
 ## 🎯 Objectif du projet
 Fournir une plateforme élégante, responsive et fonctionnelle pour :
