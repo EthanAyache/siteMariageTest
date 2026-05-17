@@ -119,33 +119,151 @@
             margin-bottom: 1rem;
         }
 
-        .timeline {
+        /* Programme — vertical mobile-first */
+        #programme {
+            max-width: none;
+            padding: 4rem 0 0;
+        }
+
+        .prog-date {
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            color: #aaa;
+            font-size: 0.85rem;
+            margin-top: -0.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .prog-list {
             display: flex;
-            flex-wrap: wrap;
+            flex-direction: column;
+            align-items: center;
+            width: 100%;
+            margin-top: 1rem;
+        }
+
+        .prog-moment {
+            width: 100%;
+            min-height: 55vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
             justify-content: center;
-            gap: 2rem;
+            padding: 5rem 2rem;
+            box-sizing: border-box;
+            text-align: center;
+        }
+
+        .prog-moment:nth-child(odd) { background-color: #fdfbf7; }
+        .prog-moment:nth-child(even) { background-color: #f8f4ef; }
+
+        .prog-divider-line {
+            width: 100%;
+            height: 1px;
+            background: linear-gradient(to right, transparent, #D4AF37 20%, #D4AF37 80%, transparent);
+        }
+
+        .prog-moment-time {
+            font-family: 'Great Vibes', cursive;
+            font-size: 5rem;
+            color: #D4AF37;
+            line-height: 1;
+            margin-bottom: 0.5rem;
+        }
+
+        .prog-moment-time sup {
+            font-family: 'Lato', sans-serif;
+            font-size: 1.8rem;
+            font-weight: 300;
+        }
+
+        .prog-moment-deco {
+            color: #D4AF37;
+            letter-spacing: 8px;
+            font-size: 0.65rem;
+            margin: 1.2rem 0;
+        }
+
+        .prog-moment-title {
+            font-family: 'Great Vibes', cursive;
+            font-size: 3.5rem;
+            color: #4a4a4a;
+            font-weight: normal;
+            margin: 0 0 0.5rem;
+        }
+
+        .prog-moment-sub {
+            font-style: italic;
+            color: #888;
+            font-size: 1rem;
+            margin: 0 0 1rem;
+            letter-spacing: 1px;
+        }
+
+        .prog-moment-loc {
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            font-size: 0.72rem;
+            color: #bbb;
             margin-top: 2rem;
         }
 
-        .event-card {
-            background: #fff;
-            padding: 2rem;
-            border-radius: 8px;
-            width: 250px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
-            transition: transform 0.3s;
+        /* Carte Houpa en arche */
+        .houpa-card-v {
+            border: 2px solid #D4AF37;
+            border-radius: 150px 150px 12px 12px;
+            padding: 3.5rem 2.5rem 2rem;
+            width: 260px;
+            position: relative;
+            background: linear-gradient(180deg, #fffef8 0%, #fff 70%);
+            box-shadow: 0 20px 60px rgba(212, 175, 55, 0.15), 0 4px 12px rgba(0,0,0,0.04);
+            margin: 1.5rem 0;
         }
 
-        .event-card:hover {
-            transform: translateY(-5px);
+        .houpa-card-v::before {
+            content: '';
+            position: absolute;
+            top: 12px; left: 12px; right: 12px; bottom: 12px;
+            border: 1px solid rgba(212,175,55,0.25);
+            border-radius: 140px 140px 6px 6px;
+            pointer-events: none;
         }
 
-        .event-time {
-            display: block;
-            font-size: 1.2rem;
+        .houpa-ornaments {
             color: #D4AF37;
-            font-weight: bold;
-            margin-bottom: 0.5rem;
+            font-size: 0.6rem;
+            letter-spacing: 6px;
+            margin: 0.5rem 0;
+        }
+
+        .houpa-card-title {
+            font-family: 'Great Vibes', cursive;
+            font-size: 2.8rem;
+            color: #D4AF37;
+            margin: 0.5rem 0;
+        }
+
+        .houpa-card-sep {
+            width: 50px;
+            height: 1px;
+            background: linear-gradient(to right, transparent, #D4AF37, transparent);
+            margin: 1rem auto;
+        }
+
+        .houpa-fr {
+            font-family: 'Great Vibes', cursive;
+            font-size: 2rem;
+            color: #4a4a4a;
+            margin: 0.5rem 0;
+        }
+
+        .houpa-he {
+            font-size: 1.6rem;
+            direction: rtl;
+            color: #5a5a5a;
+            font-weight: 300;
+            margin: 0.5rem 0;
+            line-height: 1.5;
         }
 
         .btn-rsvp {
@@ -328,6 +446,18 @@
                 width: 80%;
                 text-align: center;
             }
+
+            .prog-moment-time {
+                font-size: 4rem;
+            }
+
+            .prog-moment-title {
+                font-size: 2.8rem;
+            }
+
+            .houpa-card-v {
+                width: 220px;
+            }
         }
     </style>
 </head>
@@ -356,22 +486,55 @@
     <!-- Programme Section -->
     <section id="programme">
         <h2>Le Programme</h2>
-        <div class="timeline">
-            <div class="event-card">
-                <span class="event-time">14:00</span>
-                <h3>Cérémonie</h3>
-                <p>Synagogue de la Victoire</p>
+        <p class="prog-date">20 Février 2027</p>
+
+        <div class="prog-list">
+
+            <!-- Mairie & After-Mairie -->
+            <div class="prog-moment">
+                <div class="prog-moment-time">11<sup>h</sup>00</div>
+                <div class="prog-moment-deco">— ✦ —</div>
+                <h3 class="prog-moment-title">Mairie</h3>
+                <p class="prog-moment-sub">&amp; After-Mairie</p>
+                <p class="prog-moment-loc">Paris</p>
             </div>
-            <div class="event-card">
-                <span class="event-time">18:00</span>
-                <h3>Cocktail</h3>
-                <p>Jardins du Pavillon</p>
+
+            <div class="prog-divider-line"></div>
+
+            <!-- La Houpa -->
+            <div class="prog-moment">
+                <div class="prog-moment-time">14<sup>h</sup>00</div>
+                <div class="houpa-card-v">
+                    <div class="houpa-ornaments">✦ &nbsp; ✦ &nbsp; ✦</div>
+                    <div class="houpa-card-title">La Houpa</div>
+                    <div class="houpa-card-sep"></div>
+                    <div class="houpa-fr">Salomée &amp; Ethan</div>
+                    <div class="houpa-he">שלומית ואיתן</div>
+                    <div class="houpa-ornaments">✦ &nbsp; ✦ &nbsp; ✦</div>
+                </div>
+                <p class="prog-moment-loc">Synagogue de la Victoire</p>
             </div>
-            <div class="event-card">
-                <span class="event-time">20:30</span>
-                <h3>Dîner & Fête</h3>
-                <p>Salle de Réception</p>
+
+            <div class="prog-divider-line"></div>
+
+            <!-- Cocktail -->
+            <div class="prog-moment">
+                <div class="prog-moment-time">18<sup>h</sup>00</div>
+                <div class="prog-moment-deco">— ✦ —</div>
+                <h3 class="prog-moment-title">Cocktail</h3>
+                <p class="prog-moment-loc">Jardins du Pavillon</p>
             </div>
+
+            <div class="prog-divider-line"></div>
+
+            <!-- Soirée -->
+            <div class="prog-moment">
+                <div class="prog-moment-time">20<sup>h</sup>30</div>
+                <div class="prog-moment-deco">— ✦ —</div>
+                <h3 class="prog-moment-title">Dîner &amp; Soirée</h3>
+                <p class="prog-moment-loc">Salle de Réception</p>
+            </div>
+
         </div>
     </section>
 
