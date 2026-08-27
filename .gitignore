@@ -1,0 +1,11 @@
+# Dépendances : réinstallées par Vercel depuis package.json
+node_modules/
+
+# Fichiers de travail
+.DS_Store
+Thumbs.db
+*.log
+__tmp-*.html
+
+# Worktrees Claude Code
+.claude/worktrees/

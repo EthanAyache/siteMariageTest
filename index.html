@@ -4,277 +4,1075 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bienvenue à Notre Mariage</title>
-    <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Lato:wght@300;400&display=swap"
-        rel="stylesheet">
+    <title>Salomée & Ethan — Votre invitation</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Pinyon+Script&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
-        body {
+        /* ============================================================
+           Palette « Champagne » (reprise du design)
+           ============================================================ */
+        :root {
+            --g1: #faf6ee;
+            --g2: #e9e2d4;
+            --light: #f4efe6;
+            --accent: #9a9488;
+            --ink: #3f3a30;
+            --sub: #6f6653;
+
+            --paper: #f7f2e6;
+            --paper-2: #ece4d3;
+            --paper-3: #e3dac6;
+            --fold: #d8cfb9;
+            --serif: 'Cormorant Garamond', Georgia, serif;
+            --script: 'Pinyon Script', cursive;
+        }
+
+        * { box-sizing: border-box; }
+
+        html, body {
             margin: 0;
-            padding: 20px;
-            background-color: #ffffff;
-            color: #D4AF37;
-            /* Couleur Or */
-            font-family: 'Lato', sans-serif;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            min-height: 100vh;
-            text-align: center;
-            /* Remplacez 'votre-image.jpg' par le nom exact de votre fichier dans le dossier image */
-            background-image: url('');
-            background-color: #f3eeeb;
-            background-repeat: no-repeat;
-            background-size: cover;
-            background-position: center;
-            box-sizing: border-box;
+            padding: 0;
+            height: 100%;
+            background: #f1ebe0;
+            overflow: hidden;
         }
 
-        h1 {
-            font-family: 'Great Vibes', cursive;
-            font-size: 5rem;
-            margin: 0;
-            font-weight: normal;
-            line-height: 1.2;
+        ::-webkit-scrollbar { width: 0; height: 0; }
+
+        a { color: var(--accent); }
+        a:hover { color: var(--sub); }
+
+        /* ============================================================
+           Scène : plateau 941x1672 mis à l'échelle dans la fenêtre
+           ============================================================ */
+        .fit {
+            position: relative;
+            width: 100%;
+            height: 100vh;
+            /* dvh : sur iOS, 100vh vaut l'écran barres masquées, ce qui fait
+               passer le bas de la page sous la barre d'outils de Safari. */
+            height: 100dvh;
+            min-height: 100%;
+            overflow: hidden;
+            background: #f1ebe0;
         }
 
-        .date {
-            font-size: 1.2rem;
-            margin-top: 1rem;
-            margin-bottom: 3rem;
-            letter-spacing: 3px;
-            text-transform: uppercase;
-            color: #bfa05f;
+        .stage {
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            width: 941px;
+            height: 1672px;
+            transform: translate(-50%, -50%);
+            transform-origin: center center;
         }
 
-        #countdown {
-            display: flex;
-            justify-content: center;
-            gap: 2rem;
-            margin-bottom: 3rem;
-            flex-wrap: wrap;
+        .ground {
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(125% 95% at 50% 40%, var(--g1) 0%, var(--g2) 100%);
         }
 
-        .time-unit {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            min-width: 80px;
+        .scene {
+            position: absolute;
+            inset: 0;
+            perspective: 1600px;
+            perspective-origin: 50% 34%;
         }
 
-        .number {
-            font-size: 3rem;
-            font-weight: 300;
+        /* ============================================================
+           Enveloppe (images du design, composées sur le plateau 941x1672)
+           envbody3.png    : dos + rabats gauche/droite/bas
+           flap-haut.png   : rabat supérieur, cachet de cire inclus
+           Repères du design : ligne des rabats à 26.2% de hauteur,
+           pointe du V à 64%, charnière du rabat à 0.8%.
+           ============================================================ */
+        .env {
+            position: absolute;
+            inset: 0;
         }
 
-        .label {
-            font-size: 0.8rem;
-            text-transform: uppercase;
-            letter-spacing: 2px;
-            margin-top: 0.5rem;
+        .env-img,
+        .flap-img {
+            position: absolute;
+            inset: 0;
+            width: 941px;
+            height: 1672px;
+            display: block;
         }
 
-        .enter-btn {
-            text-decoration: none;
-            color: #D4AF37;
-            border: 1px solid #D4AF37;
-            padding: 15px 50px;
-            font-size: 1rem;
-            text-transform: uppercase;
-            letter-spacing: 3px;
-            transition: all 0.3s ease;
+        .env-img {
+            filter: drop-shadow(0 18px 40px rgba(120, 104, 74, 0.22));
         }
 
-        .enter-btn:hover {
-            background-color: #D4AF37;
-            color: #ffffff;
+        .layer-back { z-index: 1; }
+        .layer-sheet { z-index: 2; }
+        .layer-flap { z-index: 4; }
+
+        /* lueur dans la gorge de l'enveloppe, quand le rabat se lève */
+        .throat-light {
+            position: absolute;
+            inset: 0;
+            opacity: 0;
+            pointer-events: none;
+            clip-path: polygon(1.7% 26.2%, 97.8% 26.2%, 50.16% 64%);
+            background: radial-gradient(80% 70% at 50% 20%, rgba(255, 250, 240, 0.9), rgba(255, 250, 240, 0) 70%);
         }
 
-        .music-btn {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            background-color: transparent;
-            color: #D4AF37;
-            border: 1px solid #D4AF37;
-            padding: 10px 20px;
+        /* rabat supérieur : charnière en haut, s'ouvre vers le spectateur */
+        .flap-top {
+            position: absolute;
+            inset: 0;
+            transform-origin: 50% 0.8%;
+            transform-style: preserve-3d;
+            backface-visibility: hidden;
+            -webkit-backface-visibility: hidden;
+            will-change: transform;
+        }
+
+        .flap-img {
+            backface-visibility: hidden;
+            -webkit-backface-visibility: hidden;
+            filter: drop-shadow(0 6px 14px rgba(90, 74, 48, 0.18));
+        }
+
+        .mono em {
+            font-style: normal;
+            font-size: 0.5em;
+            padding: 0 0.04em;
+        }
+
+        /* halo pulsé + cible de clic sur le cachet */
+        .pulse {
+            position: absolute;
+            left: 291px;
+            top: 778px;
+            width: 340px;
+            height: 340px;
+            border-radius: 50%;
+            pointer-events: none;
+            opacity: 0;
+            mix-blend-mode: screen;
+            background: radial-gradient(circle, rgba(255, 252, 244, 0.55), rgba(255, 252, 244, 0) 65%);
+            z-index: 5;
+        }
+
+        .tap {
+            position: absolute;
+            left: 311px;
+            top: 798px;
+            width: 300px;
+            height: 300px;
+            border-radius: 50%;
             cursor: pointer;
-            font-family: 'Lato', sans-serif;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            z-index: 100;
-            transition: all 0.3s ease;
+            z-index: 6;
+            background: transparent;
+            border: 0;
+            padding: 0;
         }
 
-        .music-btn:hover {
-            background-color: #D4AF37;
-            color: #ffffff;
+        .tap:focus-visible {
+            outline: 2px solid rgba(154, 148, 136, 0.9);
+            outline-offset: 6px;
         }
 
-        /* Media Queries pour tablettes et mobiles */
-        @media screen and (max-width: 768px) {
-            h1 {
-                font-size: 4rem;
-            }
-
-            .number {
-                font-size: 2.5rem;
-            }
+        .hint {
+            position: absolute;
+            left: 0;
+            right: 0;
+            top: 1610px;
+            text-align: center;
+            font: 400 30px/1 var(--serif);
+            font-style: italic;
+            letter-spacing: 0.12em;
+            color: var(--sub);
+            z-index: 5;
+            pointer-events: none;
+            transition: opacity .5s ease;
         }
 
-        @media screen and (max-width: 480px) {
-            h1 {
-                font-size: 3rem;
-            }
-
-            .date {
-                font-size: 1rem;
-                margin-bottom: 1.5rem;
-            }
-
-            #countdown {
-                gap: 1rem;
-                margin-bottom: 2rem;
-                justify-content: center;
-            }
-
-            .time-unit {
-                min-width: auto;
-            }
-
-            .number {
-                font-size: 2rem;
-            }
-
-            .label {
-                font-size: 0.7rem;
-            }
-
-            .enter-btn {
-                padding: 12px 30px;
-                font-size: 0.9rem;
-            }
-
-            .music-btn {
-                padding: 8px 15px;
-                font-size: 0.8rem;
-            }
+        /* ============================================================
+           Le carton qui sort de l'enveloppe
+           ============================================================ */
+        /* fenêtre : le carton est masqué par le V des rabats avant.
+           Elle suit l'enveloppe quand celle-ci descend (clip-path piloté en JS). */
+        .sheet-window {
+            position: absolute;
+            inset: 0;
+            pointer-events: none;
+            overflow: hidden;
+            clip-path: polygon(0% 0%, 100% 0%, 100% 26.2%, 50.16% 64%, 0% 26.2%);
         }
 
-         .hero-arch-wrapper {
-            padding-top: 50px;
-            position: relative;
-            z-index: 2;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            animation: fadeInUp 1.5s ease both;
+        .sheet {
+            position: absolute;
+            left: 12%;
+            right: 12%;
+            top: 10%;
+            height: 56%;
+            opacity: 0;
+            transform: translateY(46%);
+            overflow: hidden;
+            border-radius: 4px;
+            background: #fdfaf3;
+            box-shadow: 0 12px 46px rgba(90, 74, 48, 0.20);
         }
 
-        /* Arche */
-        .hero-arch {
-            box-sizing: border-box;
-            background: rgba(255,255,255,0.84);
-            backdrop-filter: blur(10px);
-            border: 1.5px solid #D4AF37;
-            border-radius: 140px;
-            padding: 3.8rem 3.2rem 3rem;
-            /* Largeur adaptée au contenu (compteur) tout en restant fluide */
-            width: min(700px, 90vw); 
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 0.6rem;
-            box-shadow:
-                0 12px 60px rgba(212,175,55,0.13),
-                0 2px 16px rgba(0,0,0,0.05),
-                inset 0 0 0 8px rgba(212,175,55,0.06);
-            position: relative;
+        .sheet-art {
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+
+        /* ============================================================
+           Lumière / fondu
+           ============================================================ */
+        .sheen {
+            position: absolute;
+            inset: -20%;
+            opacity: 0;
+            pointer-events: none;
+            mix-blend-mode: screen;
+            background: radial-gradient(40% 30% at 50% 40%, rgba(255, 255, 250, 0.75), rgba(255, 255, 250, 0) 70%);
+            z-index: 7;
+        }
+
+        .veil {
+            position: absolute;
+            inset: 0;
+            opacity: 0;
+            pointer-events: none;
+            background: var(--light);
+            z-index: 8;
+        }
+
+        .flash {
+            position: absolute;
+            inset: 0;
+            opacity: 0;
+            pointer-events: none;
+            mix-blend-mode: screen;
+            background: radial-gradient(70% 60% at 50% 44%, #ffffff, rgba(255, 255, 255, 0) 72%);
+            z-index: 9;
+        }
+
+        /* ============================================================
+           Le site d'invitation, qui émerge de la lumière
+           ============================================================ */
+        /* Le site ne suit pas le plateau 941x1672 de l'enveloppe : il doit couvrir
+           l'écran réel, quel que soit son format. left/top/width/height sont
+           recalculés en JS dans resize(), exprimés dans les unités du plateau. */
+        .site {
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 941px;
+            height: 1672px;
+            opacity: 0;
+            pointer-events: none;
+            z-index: 10;
+            background-color: #f7f3ea;
+            background-image: url('image/enveloppe/fond.png');
+            background-position: top center;
+            background-size: 100% auto;
+            background-repeat: repeat-y;
+            background-attachment: local;
+            overflow-y: auto;
+            overflow-x: hidden;
+            scrollbar-width: none;
+        }
+
+        /* pas de voile ici : fond.png a déjà un centre crème dégagé pour le texte.
+           Un fond translucide délavait tout ce qui est sous le hero. */
+        /* la colonne de contenu reste à la largeur de conception (941),
+           même quand le site est plus large que le plateau (grand écran). */
+        .site-inner {
+            background: transparent;
+            max-width: 941px;
             margin: 0 auto;
         }
 
-        /* Bordure intérieure fine */
-        .hero-arch::before {
-            content: '';
-            position: absolute;
-            top: 14px; left: 14px; right: 14px; bottom: 14px;
-            border: 1px solid rgba(212,175,55,0.20);
-            border-radius: 126px;
-            pointer-events: none;
+        .nav {
+            position: sticky;
+            top: 0;
+            z-index: 6;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 30px;
+            background: #7d7768;
+            padding: 32px 0;
+            box-shadow: 0 2px 18px rgba(90, 84, 70, 0.18);
         }
 
-        /* Ajustement spécifique pour l'arche sur mobile */
-        @media screen and (max-width: 600px) {
-            .hero-arch {
-                padding: 3rem 1.5rem 2rem;
-                border-radius: 100px;
-            }
-            .hero-arch::before {
-                border-radius: 90px;
-            }
+        .nav button {
+            font: 500 30px/1 var(--serif);
+            letter-spacing: 0.3em;
+            text-indent: 0.3em;
+            text-transform: uppercase;
+            color: #f7f3ea;
+            cursor: pointer;
+            background: none;
+            border: 0;
+            padding: 0;
         }
+
+        .nav .sep {
+            font: 400 28px/1 var(--serif);
+            color: #a49c8c;
+        }
+
+        /* hero */
+        .hero { position: relative; z-index: 1; }
+
+        /* une page pleine : hauteur de l'écran moins la barre de navigation.
+           « cover » remplit sans déformer ; le rognage porte sur les bordures
+           décoratives, l'arche et le monogramme restent centrés. */
+        .hero-art {
+            position: relative;
+            width: 100%;
+            height: var(--hero-h, 1412px);
+            background: #fbf8f1 url('image/enveloppe/accueil.png') center center / cover no-repeat;
+        }
+
+        .hero-txt {
+            position: absolute;
+            left: 0;
+            right: 0;
+            top: 47%;
+            text-align: center;
+            padding: 0 170px;
+            z-index: 2;
+        }
+
+        .hero-txt .names {
+            font: 400 62px/1.15 var(--script);
+            color: #3f3d36;
+        }
+
+        .hero-txt .rule {
+            width: 1px;
+            height: 22px;
+            background: #c2bcae;
+            margin: 16px auto 14px;
+        }
+
+        .hero-txt .date {
+            font: 400 26px/1.3 var(--serif);
+            letter-spacing: 0.3em;
+            text-indent: 0.3em;
+            text-transform: uppercase;
+            color: #6b675c;
+        }
+
+        .hero-txt .place {
+            font: 400 24px/1.4 var(--serif);
+            font-style: italic;
+            color: #8a8578;
+            margin-top: 6px;
+        }
+
+        /* houppa */
+        .panel {
+            position: relative;
+            z-index: 1;
+            padding: 70px 152px 0;
+        }
+
+        .panel-in { padding: 24px 0; text-align: center; }
+
+        .panel-in .mono { font: 400 88px/0.9 var(--script); color: #4a463c; }
+
+        .lead {
+            font: 400 30px/1.7 var(--serif);
+            font-style: italic;
+            color: #4a443a;
+        }
+
+        .panel-in .names-big {
+            font: 400 80px/1.2 var(--script);
+            color: #4a463c;
+            margin-top: 24px;
+        }
+
+        .date-big {
+            font: 500 44px/1.3 var(--serif);
+            color: #4a463c;
+            margin-top: 34px;
+            letter-spacing: 0.04em;
+        }
+
+        .place-big {
+            font: 400 30px/1.6 var(--serif);
+            font-style: italic;
+            color: #6b6459;
+            margin-top: 10px;
+        }
+
+        .flourish-row {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 20px;
+            margin: 44px 0;
+        }
+
+        .flourish-row .line { width: 70px; height: 1px; background: #d5cfc0; }
+
+        /* ornement-flourish.png est opaque (fond crème incrusté, alpha 255).
+           « darken » ne garde que les traits de l'ornement et efface son rectangle. */
+        .flourish {
+            display: block;
+            opacity: .9;
+            mix-blend-mode: darken;
+        }
+
+        .link-italic {
+            display: inline-block;
+            margin-top: 34px;
+            font: 400 30px/1 var(--serif);
+            font-style: italic;
+            color: #4a463c;
+            text-decoration: underline;
+            text-underline-offset: 8px;
+        }
+
+        /* programme */
+        .section {
+            position: relative;
+            z-index: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            padding: 110px 152px 20px;
+        }
+
+        .section h2 {
+            font: 500 44px/1 var(--serif);
+            letter-spacing: 0.36em;
+            text-indent: 0.36em;
+            text-transform: uppercase;
+            color: #4a463c;
+            margin: 30px 0 0;
+        }
+
+        .timeline {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            margin-top: 50px;
+        }
+
+        .event {
+            padding: 38px 0;
+            border-bottom: 1px solid #ddd7c8;
+        }
+
+        .event h3 {
+            font: 500 38px/1 var(--serif);
+            letter-spacing: 0.26em;
+            text-indent: 0.26em;
+            text-transform: uppercase;
+            color: #4a463c;
+            margin: 0;
+        }
+
+        .event .dash { width: 44px; height: 1px; background: #c2bcae; margin: 26px auto; }
+
+        .event .when { font: 500 30px/1.5 var(--serif); color: #3a362f; }
+
+        .event .where {
+            font: 400 27px/1.5 var(--serif);
+            font-style: italic;
+            color: #6b6459;
+            margin-top: 8px;
+        }
+
+        /* rsvp */
+        .rsvp { width: 100%; padding: 10px 0; }
+
+        .rsvp h2 {
+            font: 500 68px/1.1 var(--serif);
+            font-style: italic;
+            color: #4a463c;
+            margin: 0;
+        }
+
+        .rsvp .intro {
+            font: 400 29px/1.6 var(--serif);
+            font-style: italic;
+            color: #6b6459;
+            margin-top: 18px;
+        }
+
+        form {
+            display: flex;
+            flex-direction: column;
+            gap: 32px;
+            margin-top: 46px;
+            text-align: left;
+        }
+
+        .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+
+        label {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            font: 400 28px/1.2 var(--serif);
+            font-style: italic;
+            color: #4a443a;
+        }
+
+        input[type="text"],
+        input[type="number"],
+        textarea {
+            border: 1px solid #c6bfae;
+            background: rgba(255, 253, 248, 0.6);
+            padding: 20px 16px;
+            font: 400 30px/1.2 var(--serif);
+            color: #4a463c;
+            border-radius: 4px;
+            width: 100%;
+        }
+
+        textarea { line-height: 1.4; resize: vertical; }
+
+        .radio-title { font: 400 28px/1.4 var(--serif); font-style: italic; color: #4a443a; }
+
+        .radios {
+            display: flex;
+            align-items: center;
+            gap: 40px;
+        }
+
+        .radios label {
+            flex-direction: row;
+            align-items: center;
+            gap: 14px;
+            cursor: pointer;
+            font: 400 30px/1.2 var(--serif);
+            color: #4a463c;
+        }
+
+        .radios input { accent-color: #4a463c; width: 26px; height: 26px; }
+
+        .rsvp-block { display: flex; flex-direction: column; gap: 16px; }
+
+        select {
+            border: 1px solid #c6bfae;
+            background: rgba(255, 253, 248, 0.6);
+            padding: 20px 16px;
+            font: 400 30px/1.2 var(--serif);
+            color: #4a463c;
+            border-radius: 4px;
+            width: 100%;
+        }
+
+        .field-error {
+            font: 400 24px/1.4 var(--serif);
+            font-style: italic;
+            color: #9d5b4d;
+        }
+
+        .submit {
+            align-self: center;
+            margin-top: 12px;
+            padding: 24px 74px;
+            border: none;
+            background: #7d7768;
+            color: #fdfaf3;
+            font: 400 32px/1 var(--serif);
+            font-style: italic;
+            cursor: pointer;
+            border-radius: 4px;
+        }
+
+        .thanks {
+            border-top: 1px solid #d5cfc0;
+            margin-top: 44px;
+            padding-top: 44px;
+        }
+
+        .thanks .merci { font: 400 66px/1.1 var(--script); color: #4a463c; }
+
+        .thanks p {
+            font: 400 29px/1.6 var(--serif);
+            font-style: italic;
+            color: #6b6459;
+            margin-top: 16px;
+        }
+
+        .footer {
+            position: relative;
+            z-index: 1;
+            text-align: center;
+            padding: 60px 0 110px;
+        }
+
+        .footer .mono { font: 400 62px/1 var(--script); color: #4a463c; }
+
+        .footer .meta {
+            font: 500 22px/1 var(--serif);
+            letter-spacing: 0.4em;
+            text-indent: 0.4em;
+            text-transform: uppercase;
+            color: #8d8574;
+            margin-top: 20px;
+        }
+
+        [hidden] { display: none !important; }
     </style>
 </head>
 
 <body>
+    <div class="fit" id="fit">
+        <div class="stage" id="stage">
+            <div class="ground"></div>
 
-    <div class="hero-arch-wrapper">
-
-        <div class="hero-arch">
-
-            <h1>Salomée & Ethan</h1>
-            <div class="date">20 fevrier 2027</div>
-
-            <div id="countdown">
-                <div class="time-unit"><span class="number" id="days">00</span><span class="label">Jours</span></div>
-                <div class="time-unit"><span class="number" id="hours">00</span><span class="label">Heures</span></div>
-                <div class="time-unit"><span class="number" id="minutes">00</span><span class="label">Minutes</span>
+            <div class="scene">
+                <!-- corps de l'enveloppe (image : dos + rabats avant déjà composés) -->
+                <div class="env layer-back" id="envBack">
+                    <img class="env-img" src="image/enveloppe/envbody3.png" alt="">
+                    <div class="throat-light" id="throatLight"></div>
                 </div>
-                <div class="time-unit"><span class="number" id="seconds">00</span><span class="label">Secondes</span>
+
+                <!-- le carton blanc qui monte de l'enveloppe, masqué par le V des rabats -->
+                <div class="sheet-window layer-sheet" id="sheetWin">
+                    <div class="sheet" id="sheet">
+                        <img class="sheet-art" src="image/enveloppe/accueil.png" alt="">
+                    </div>
                 </div>
+
+                <!-- rabat supérieur, porteur du cachet (cachet inclus dans l'image) -->
+                <div class="flap-top layer-flap" id="flap">
+                    <img class="flap-img" id="flapPaper" src="image/enveloppe/flap-haut.png" alt="">
+                </div>
+
+                <div class="pulse" id="pulse"></div>
+                <button class="tap" id="tap" type="button" aria-label="Ouvrir l'invitation"></button>
+                <div class="hint" id="hint">Touchez le cachet pour ouvrir</div>
+
+                <div class="sheen" id="sheen"></div>
             </div>
 
-            <a href="accueil.html" class="enter-btn" id="openInviteBtn">Ouvrir l'invitation </a>
+            <div class="veil" id="veil"></div>
+            <div class="flash" id="flash"></div>
 
-            <br><br>
-            <div class="hero-bsd">בס״ד</div>
+            <!-- le site d'invitation -->
+            <div class="site" id="site">
+                <div class="site-inner">
+                    <div class="nav">
+                        <button type="button" data-scroll="top">Accueil</button>
+                        <div class="sep">|</div>
+                        <button type="button" data-scroll="infos">Houppa</button>
+                        <div class="sep" id="navSepRsvp">|</div>
+                        <button type="button" data-scroll="rsvp" id="navRsvp">RSVP</button>
+                    </div>
 
+                    <div class="hero">
+                        <div class="hero-art">
+                            <div class="hero-txt">
+                                <div class="names"> <br> Salomée &amp; Ethan</div>
+                                <div class="rule"></div>
+                                <div class="date">Jeudi 18 Fevrier 2027</div>
+                                <div class="place">Dolce Versailles . Domaine de Montcel</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="panel" id="infos">
+                        <div class="panel-in">
+                            <div class="mono">S<em>&amp;</em>E</div>
+                            <div class="lead" style="margin-top:48px;">Nos familles ont l'immense joie de vous faire part du mariage de</div>
+                            <div class="names-big">Salomée &amp; Ethan</div>
+                            <div class="lead" style="margin-top:28px;">et vous prient de bien vouloir assister à la houppa qui aura lieu</div>
+                            <div class="date-big">Dimanche 13 Juin 2027</div>
+                            <div class="place-big">Domaine des Oliviers · Provence</div>
+                            <div class="flourish-row">
+                                <div class="line"></div>
+                                <img class="flourish" src="image/enveloppe/ornement-flourish.png" width="150" alt="">
+                                <div class="line"></div>
+                            </div>
+                            <div class="lead" style="font-style:normal;">La houppa débutera à 18h30, suivie du cocktail et de la soirée à partir de 20h30.</div>
+                            <a class="link-italic" href="#" id="itineraire">Voir l'itinéraire</a>
+                        </div>
+                    </div>
+
+                    <div class="section">
+                        <img class="flourish" src="image/enveloppe/ornement-flourish.png" width="180" alt="">
+                        <h2>Le programme</h2>
+                        <div class="timeline">
+                            <div class="event">
+                                <h3>Mairie</h3>
+                                <div class="dash"></div>
+                                <div class="when">Vendredi 11 Juin 2027 · 15h00</div>
+                                <div class="where">Mairie du XVIᵉ arrondissement, Paris</div>
+                            </div>
+                            <div class="event">
+                                <h3>Chabbat</h3>
+                                <div class="dash"></div>
+                                <div class="when">Samedi 12 Juin 2027 · Déjeuner de Chabbat</div>
+                                <div class="where">En famille, sur invitation</div>
+                            </div>
+                            <div class="event">
+                                <h3>Houppa</h3>
+                                <div class="dash"></div>
+                                <div class="when">Dimanche 13 Juin 2027 · 18h30</div>
+                                <div class="where">Domaine des Oliviers, Provence</div>
+                            </div>
+                            <div class="event">
+                                <h3>Cocktail &amp; Soirée</h3>
+                                <div class="dash"></div>
+                                <div class="when">Dimanche 13 Juin 2027 · à partir de 20h30</div>
+                                <div class="where">Les Jardins du Domaine</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Section masquée tant qu'aucun token valide n'est reconnu -->
+                    <div class="section" id="rsvp" hidden>
+                        <div class="rsvp">
+                            <h2>Votre réponse</h2>
+                            <div class="intro" id="rsvpGreeting">Merci de confirmer votre présence dès réception.</div>
+                            <img class="flourish" src="image/enveloppe/ornement-flourish.png" width="150" style="margin:22px auto 0" alt="">
+
+                            <form id="rsvpForm">
+                                <div class="rsvp-block">
+                                    <div class="radio-title">Mairie &amp; After — vendredi 11 juin 2027 *</div>
+                                    <div class="radios">
+                                        <label><input type="radio" name="mairie" value="oui" /> Oui</label>
+                                        <label><input type="radio" name="mairie" value="non" /> Non</label>
+                                    </div>
+                                    <label id="wrapNbMairie" hidden>Nombre de personnes
+                                        <select id="nbMairie"></select>
+                                    </label>
+                                    <div class="field-error" id="errMairie" hidden></div>
+                                </div>
+
+                                <div class="rsvp-block">
+                                    <div class="radio-title">Houppa &amp; Réception — dimanche 13 juin 2027 *</div>
+                                    <div class="radios">
+                                        <label><input type="radio" name="houppa" value="oui" /> Oui</label>
+                                        <label><input type="radio" name="houppa" value="non" /> Non</label>
+                                    </div>
+                                    <label id="wrapNbHouppa" hidden>Nombre de personnes
+                                        <select id="nbHouppa"></select>
+                                    </label>
+                                    <div class="field-error" id="errHouppa" hidden></div>
+                                </div>
+
+                                <label>Laissez-nous un message
+                                    <textarea rows="4" id="guestMessage"></textarea>
+                                </label>
+                                <button class="submit" type="submit" id="rsvpSubmit">Envoyer ma réponse</button>
+                                <div class="field-error" id="errGlobal" hidden></div>
+                            </form>
+
+                            <div class="thanks" id="rsvpDone" hidden>
+                                <div class="merci" id="merciTitre">Merci !</div>
+                                <p id="merciTexte">Votre réponse a bien été envoyée.<br />Salomée &amp; Ethan ont hâte de vous retrouver.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="footer">
+                        <div class="mono">S<em>&amp;</em>E</div>
+                        <div class="meta">13 Juin 2027 · Provence</div>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 
-
-
-
     <script>
-        // Mettez à jour la date de votre mariage ici (Format: Mois Jour, Année Heure:Minute:Seconde)
-        const weddingDate = new Date("february 20, 2027 14:00:00").getTime();
+        (function () {
+            'use strict';
 
-        const timer = setInterval(() => {
-            const now = new Date().getTime();
-            const distance = weddingDate - now;
+            var el = function (id) { return document.getElementById(id); };
+            var fit = el('fit'), stage = el('stage');
+            var envBack = el('envBack'), sheetWin = el('sheetWin'), flap = el('flap'),
+                flapPaper = el('flapPaper'), throatLight = el('throatLight'), sheet = el('sheet'),
+                pulse = el('pulse'), tap = el('tap'), hint = el('hint'),
+                sheen = el('sheen'), veil = el('veil'), flash = el('flash'), site = el('site'),
+                nav = document.querySelector('.nav');
 
-            if (distance == 0) {
-                clearInterval(timer);
-                document.getElementById("countdown").innerHTML = "<div>C'est le grand jour !</div>";
-                return;
+            /* ---- timeline (valeurs du design, rythme « Équilibré ») ---- */
+            var D = {
+                openS: 900, openE: 3200,
+                sheetS: 2100, sheetE: 3300,
+                downS: 3100, downE: 4000,
+                fadeS: 3900, fadeE: 5000,
+                siteS: 4800, siteE: 6100,
+                dur: 6800, sheenE: 1250,
+                downPx: 620, maxA: 104
+            };
+
+            var clamp = function (x, a, b) { return Math.max(a, Math.min(b, x)); };
+            var lerp = function (a, b, t) { return a + (b - a) * t; };
+            var ease = function (p) { return p < 0.5 ? 4 * p * p * p : 1 - Math.pow(-2 * p + 2, 3) / 2; };
+
+            /* ---- mise à l'échelle du plateau ---- */
+            function resize() {
+                var w = fit.clientWidth || window.innerWidth || 360;
+                var h = fit.clientHeight || window.innerHeight || 640;
+                var sc = Math.min(w / 941, h / 1672);
+                if (!(sc > 0)) sc = 0.3;
+                stage.style.transform = 'translate(-50%,-50%) scale(' + sc + ')';
+
+                /* Le site couvre l'écran réel. On convertit les dimensions de la
+                   fenêtre en unités du plateau (division par l'échelle), puis on
+                   recentre : sur un iPhone, sc vaut w/941, donc la largeur reste
+                   941 et seule la hauteur s'allonge (~2045 au lieu de 1672). */
+                var sw = w / sc, sh = h / sc;
+                site.style.width = sw + 'px';
+                site.style.height = sh + 'px';
+                site.style.left = ((941 - sw) / 2) + 'px';
+                site.style.top = ((1672 - sh) / 2) + 'px';
+
+                /* le hero occupe une page pleine, barre de navigation déduite */
+                var navH = nav ? nav.offsetHeight : 94;
+                site.style.setProperty('--hero-h', Math.max(0, sh - navH) + 'px');
             }
-            else if (distance < 0) {
-                clearInterval(timer);
-                document.getElementById("countdown").innerHTML = "<div>Merci d'être venue  !</div>";
-                return;
-            }
-            document.getElementById("days").innerText = Math.floor(distance / (1000 * 60 * 60 * 24));
-            document.getElementById("hours").innerText = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-            document.getElementById("minutes").innerText = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
-            document.getElementById("seconds").innerText = Math.floor((distance % (1000 * 60)) / 1000);
-        }, 1000);
 
-        // Vérification d'un token d'invitation dans l'URL
-        const urlParams = new URLSearchParams(window.location.search);
-        const token = urlParams.get('token');
-        if (token) {
-            document.getElementById("openInviteBtn").href = `invite.html?token=${token}`;
-        }
+            /* ---- rendu d'une image de l'animation ---- */
+            function render(ms) {
+                var a = 0;
+                if (ms > D.openS) a = ease(clamp((ms - D.openS) / (D.openE - D.openS), 0, 1)) * D.maxA;
+
+                var dn = ease(clamp((ms - D.downS) / (D.downE - D.downS), 0, 1)) * D.downPx;
+                var slide = 'translateY(' + dn + 'px)';
+                envBack.style.transform = slide;
+
+                /* la fenêtre descend avec l'enveloppe pour libérer le carton */
+                var d = dn / 1672 * 100;
+                sheetWin.style.clipPath = 'polygon(0% 0%, 100% 0%, 100% ' + (26.2 + d) + '%, 50.16% ' + (64 + d) + '%, 0% ' + (26.2 + d) + '%)';
+
+                flap.style.transform = slide + ' rotateX(' + a + 'deg)';
+                flap.style.opacity = String(1 - clamp((a - 84) / (97 - 84), 0, 1));
+
+                var b = lerp(1, 0.82, clamp(a / D.maxA, 0, 1));
+                flapPaper.style.filter = 'brightness(' + b + ') drop-shadow(0 ' + (6 + a * 0.25) + 'px ' + (14 + a * 0.2) + 'px rgba(90,74,48,0.20))';
+
+                throatLight.style.opacity = String(clamp(a / 55, 0, 1) * 0.4);
+
+                var ps = ease(clamp((ms - D.sheetS) / (D.sheetE - D.sheetS), 0, 1));
+                sheet.style.opacity = String(ps);
+                sheet.style.transform = 'translateY(' + lerp(46, 0, ps) + '%)';
+
+                var sp = clamp(ms / D.sheenE, 0, 1);
+                sheen.style.opacity = String(ms < D.sheenE ? Math.sin(sp * Math.PI) * 0.5 : 0);
+                sheen.style.transform = 'translate(' + lerp(-26, 16, sp) + '%,' + lerp(-8, 10, sp) + '%)';
+
+                veil.style.opacity = String(ease(clamp((ms - D.fadeS) / (D.fadeE - D.fadeS), 0, 1)));
+
+                var c = clamp((ms - D.fadeS) / (D.fadeE - D.fadeS), 0, 1);
+                flash.style.opacity = String(Math.sin(c * Math.PI) * 0.4);
+
+                var e = ease(clamp((ms - D.siteS) / (D.siteE - D.siteS), 0, 1));
+                site.style.opacity = String(e);
+                site.style.transform = 'translateY(' + lerp(22, 0, e) + 'px) scale(' + lerp(1.03, 1, e) + ')';
+                site.style.pointerEvents = e > 0.9 ? 'auto' : 'none';
+            }
+
+            /* ---- boucle ---- */
+            var started = false, startT0 = 0, startOffset = 0, raf = null;
+            var reduced = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+            function loop(now) {
+                resize();
+                if (!started) {
+                    render(0);
+                    pulse.style.opacity = String(0.10 + ((Math.sin(now / 620) + 1) / 2) * 0.30);
+                    raf = requestAnimationFrame(loop);
+                    return;
+                }
+                pulse.style.opacity = '0';
+                var ms = (now - startT0) + startOffset;
+                if (ms >= D.dur) { render(D.dur); raf = null; return; }
+                render(ms);
+                raf = requestAnimationFrame(loop);
+            }
+
+            function startOpen() {
+                if (started) return;
+                started = true;
+                tap.style.pointerEvents = 'none';
+                tap.style.cursor = 'default';
+                hint.style.opacity = '0';
+
+                if (reduced) {
+                    if (raf) { cancelAnimationFrame(raf); raf = null; }
+                    pulse.style.opacity = '0';
+                    render(D.dur);
+                    return;
+                }
+                startT0 = performance.now();
+                startOffset = Math.max(0, D.openS - 250);
+            }
+
+            tap.addEventListener('click', startOpen);
+
+            /* ---- navigation interne au site ---- */
+            Array.prototype.forEach.call(document.querySelectorAll('[data-scroll]'), function (btn) {
+                btn.addEventListener('click', function () {
+                    var key = btn.getAttribute('data-scroll');
+                    if (key === 'top') { site.scrollTo({ top: 0, behavior: 'smooth' }); return; }
+                    var target = el(key);
+                    if (target) site.scrollTo({ top: target.offsetTop - 120, behavior: 'smooth' });
+                });
+            });
+
+            el('itineraire').addEventListener('click', function (e) { e.preventDefault(); });
+
+            /* ============================================================
+               RSVP relié au système admin (Supabase, table « invites »).
+               L'admin distribue des liens index.html?token=XXX ; sans token
+               reconnu, le site s'affiche mais la section RSVP reste masquée.
+               ============================================================ */
+            var SUPABASE_URL = 'https://ingtrfzjxbtjzisctuyo.supabase.co';
+            var SUPABASE_ANON_KEY = 'sb_publishable_bzP_bkQglIR0yTB4kZiITg_wFnq6m3h';
+
+            var form = el('rsvpForm'), done = el('rsvpDone'), rsvpSection = el('rsvp');
+            var currentToken = null, currentPlaces = 1;
+
+            function hideRsvp() {
+                rsvpSection.hidden = true;
+                if (el('navRsvp')) el('navRsvp').hidden = true;
+                if (el('navSepRsvp')) el('navSepRsvp').hidden = true;
+            }
+
+            /* remplit un select de 1 à N places */
+            function fillPlaces(select, places) {
+                select.innerHTML = '';
+                var opt0 = document.createElement('option');
+                opt0.value = ''; opt0.textContent = 'Nombre de personnes';
+                opt0.disabled = true; opt0.selected = true;
+                select.appendChild(opt0);
+                for (var i = 1; i <= places; i++) {
+                    var o = document.createElement('option');
+                    o.value = i;
+                    o.textContent = i + (i > 1 ? ' personnes' : ' personne');
+                    select.appendChild(o);
+                }
+            }
+
+            /* le compteur n'apparaît que si la réponse est « oui » */
+            function bindToggle(name, wrapId) {
+                Array.prototype.forEach.call(document.querySelectorAll('input[name="' + name + '"]'), function (r) {
+                    r.addEventListener('change', function () {
+                        el(wrapId).hidden = (r.value !== 'oui');
+                    });
+                });
+            }
+            bindToggle('mairie', 'wrapNbMairie');
+            bindToggle('houppa', 'wrapNbHouppa');
+
+            function showThanks(reponse) {
+                form.hidden = true;
+                done.hidden = false;
+                if (reponse === 'decline') {
+                    el('merciTitre').textContent = 'Merci pour votre réponse';
+                    el('merciTexte').innerHTML = 'Nous regrettons de ne pas vous compter parmi nous.<br />Vous serez dans nos pensées ce jour-là.';
+                } else {
+                    el('merciTitre').textContent = 'Merci !';
+                    el('merciTexte').innerHTML = 'Votre réponse a bien été enregistrée.<br />Salomée &amp; Ethan ont hâte de vous retrouver.';
+                }
+            }
+
+            var supa = null;
+            try {
+                if (window.supabase) supa = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+            } catch (e) { supa = null; }
+
+            function loadInvite() {
+                var token = new URLSearchParams(window.location.search).get('token');
+                if (!token || !supa) { hideRsvp(); return; }
+
+                supa.from('invites').select('*').eq('token', token).single()
+                    .then(function (res) {
+                        if (res.error || !res.data) { hideRsvp(); return; }
+                        var inv = res.data;
+                        currentToken = token;
+                        currentPlaces = inv.places || 1;
+
+                        rsvpSection.hidden = false;
+                        el('rsvpGreeting').textContent = 'Cher(e) ' + inv.nom + ', merci de confirmer votre présence.';
+                        fillPlaces(el('nbMairie'), currentPlaces);
+                        fillPlaces(el('nbHouppa'), currentPlaces);
+
+                        if (inv.rsvp === 'confirme' || inv.rsvp === 'decline') showThanks(inv.rsvp);
+                    })
+                    .catch(function () { hideRsvp(); });
+            }
+            loadInvite();
+
+            function fieldError(id, msg) {
+                var e = el(id);
+                e.textContent = msg;
+                e.hidden = false;
+            }
+
+            form.addEventListener('submit', function (e) {
+                e.preventDefault();
+                el('errMairie').hidden = true;
+                el('errHouppa').hidden = true;
+                el('errGlobal').hidden = true;
+
+                var mairie = document.querySelector('input[name="mairie"]:checked');
+                var houppa = document.querySelector('input[name="houppa"]:checked');
+                var ok = true;
+
+                if (!mairie) { fieldError('errMairie', 'Merci de sélectionner une option.'); ok = false; }
+                else if (mairie.value === 'oui' && !el('nbMairie').value) { fieldError('errMairie', 'Merci de préciser le nombre de personnes.'); ok = false; }
+
+                if (!houppa) { fieldError('errHouppa', 'Merci de sélectionner une option.'); ok = false; }
+                else if (houppa.value === 'oui' && !el('nbHouppa').value) { fieldError('errHouppa', 'Merci de préciser le nombre de personnes.'); ok = false; }
+
+                if (!ok || !currentToken || !supa) {
+                    if (ok && !currentToken) fieldError('errGlobal', 'Lien invalide : réponse impossible à enregistrer.');
+                    return;
+                }
+
+                var btn = el('rsvpSubmit');
+                btn.disabled = true;
+                btn.textContent = 'Envoi en cours…';
+
+                /* décliné seulement si les deux événements sont refusés */
+                var reponse = (mairie.value === 'non' && houppa.value === 'non') ? 'decline' : 'confirme';
+
+                supa.from('invites').update({
+                    rsvp: reponse,
+                    mairie: mairie.value,
+                    nb_mairie: mairie.value === 'oui' ? parseInt(el('nbMairie').value, 10) : 0,
+                    houppa: houppa.value,
+                    nb_houppa: houppa.value === 'oui' ? parseInt(el('nbHouppa').value, 10) : 0,
+                    message: el('guestMessage').value
+                }).eq('token', currentToken)
+                    .then(function (res) {
+                        if (res.error) throw res.error;
+                        showThanks(reponse);
+                    })
+                    .catch(function () {
+                        fieldError('errGlobal', "Une erreur est survenue, merci de réessayer.");
+                        btn.disabled = false;
+                        btn.textContent = 'Envoyer ma réponse';
+                    });
+            });
+
+            /* ---- init ---- */
+            window.addEventListener('resize', resize);
+            if (window.ResizeObserver) new ResizeObserver(resize).observe(fit);
+            resize();
+            raf = requestAnimationFrame(loop);
+        })();
     </script>
 </body>
 
