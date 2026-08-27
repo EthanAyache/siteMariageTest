@@ -582,6 +582,38 @@
             color: #9d5b4d;
         }
 
+        /* ============================================================
+           Bouton musique — hors du plateau mis à l'échelle, donc en
+           pixels réels : il garde la même taille sur tous les écrans.
+           ============================================================ */
+        .music-btn {
+            position: fixed;
+            right: 18px;
+            bottom: 18px;
+            z-index: 1001;
+            width: 46px;
+            height: 46px;
+            border-radius: 50%;
+            border: 1px solid #b6ae9c;
+            background: rgba(253, 250, 243, 0.9);
+            color: #6f6653;
+            font: 400 20px/1 var(--serif);
+            cursor: pointer;
+            box-shadow: 0 2px 12px rgba(90, 74, 48, 0.18);
+            transition: background .3s ease, color .3s ease, opacity .4s ease;
+            -webkit-backdrop-filter: blur(4px);
+            backdrop-filter: blur(4px);
+        }
+
+        .music-btn:hover { background: #7d7768; color: #fdfaf3; }
+
+        .music-btn.muted { opacity: .55; }
+        .music-btn.muted span { text-decoration: line-through; }
+
+        @media (max-width: 640px) {
+            .music-btn { width: 42px; height: 42px; right: 14px; bottom: 14px; }
+        }
+
         .submit {
             align-self: center;
             margin-top: 12px;
@@ -792,6 +824,16 @@
         </div>
     </div>
 
+    <!-- Musique d'ambiance. Pas d'attribut autoplay : les navigateurs le
+         bloquent. La lecture démarre au clic sur le cachet, qui est un
+         geste utilisateur et lève donc la restriction. -->
+    <audio id="bgMusic" loop preload="none">
+        <source src="audio/musiqueM.mp3" type="audio/mpeg">
+    </audio>
+    <button id="musicBtn" class="music-btn" type="button" hidden aria-label="Couper la musique">
+        <span id="musicIcon">♪</span>
+    </button>
+
     <script>
         (function () {
             'use strict';
@@ -907,6 +949,7 @@
                 tap.style.pointerEvents = 'none';
                 tap.style.cursor = 'default';
                 hint.style.opacity = '0';
+                startMusic();
 
                 if (reduced) {
                     if (raf) { cancelAnimationFrame(raf); raf = null; }
@@ -919,6 +962,43 @@
             }
 
             tap.addEventListener('click', startOpen);
+
+            /* ============================================================
+               Musique d'ambiance
+               Le clic sur le cachet compte comme geste utilisateur : la
+               lecture est autorisée. Si le navigateur la refuse malgré
+               tout, le bouton reste affiché en position « coupé ».
+               ============================================================ */
+            var music = el('bgMusic'), musicBtn = el('musicBtn');
+
+            function paintMusic() {
+                var on = !music.paused;
+                musicBtn.classList.toggle('muted', !on);
+                musicBtn.setAttribute('aria-label', on ? 'Couper la musique' : 'Remettre la musique');
+            }
+
+            function startMusic() {
+                musicBtn.hidden = false;
+                if (reduced) { paintMusic(); return; }
+                music.volume = 0.55;
+                var p = music.play();
+                if (p && p.catch) p.catch(function () { /* refus du navigateur */ });
+                if (p && p.then) p.then(paintMusic, paintMusic); else paintMusic();
+            }
+
+            musicBtn.addEventListener('click', function () {
+                if (music.paused) {
+                    var p = music.play();
+                    if (p && p.catch) p.catch(function () {});
+                    if (p && p.then) p.then(paintMusic, paintMusic); else paintMusic();
+                } else {
+                    music.pause();
+                    paintMusic();
+                }
+            });
+
+            music.addEventListener('play', paintMusic);
+            music.addEventListener('pause', paintMusic);
 
             /* ---- navigation interne au site ---- */
             Array.prototype.forEach.call(document.querySelectorAll('[data-scroll]'), function (btn) {
