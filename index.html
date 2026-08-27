@@ -937,8 +937,8 @@
                L'admin distribue des liens index.html?token=XXX ; sans token
                reconnu, le site s'affiche mais la section RSVP reste masquée.
                ============================================================ */
-            var SUPABASE_URL = 'https://ingtrfzjxbtjzisctuyo.supabase.co';
-            var SUPABASE_ANON_KEY = 'sb_publishable_bzP_bkQglIR0yTB4kZiITg_wFnq6m3h';
+            var SUPABASE_URL = 'https://cdxtqfhnechqomkpediw.supabase.co';
+            var SUPABASE_ANON_KEY = 'sb_publishable_YnYkAoVGyWkGHnH-Cd-Ddg_wuvbL6Os';
 
             var form = el('rsvpForm'), done = el('rsvpDone'), rsvpSection = el('rsvp');
             var currentToken = null, currentPlaces = 1;
@@ -996,10 +996,12 @@
                 var token = new URLSearchParams(window.location.search).get('token');
                 if (!token || !supa) { hideRsvp(); return; }
 
-                supa.from('invites').select('*').eq('token', token).single()
+                /* get_invite : fonction SECURITY DEFINER. Le rôle anon n'a aucun
+                   accès direct à la table, il faut connaître le token. */
+                supa.rpc('get_invite', { p_token: token })
                     .then(function (res) {
-                        if (res.error || !res.data) { hideRsvp(); return; }
-                        var inv = res.data;
+                        var inv = res.data && res.data.length ? res.data[0] : null;
+                        if (res.error || !inv) { hideRsvp(); return; }
                         currentToken = token;
                         currentPlaces = inv.places || 1;
 
@@ -1045,17 +1047,18 @@
                 btn.disabled = true;
                 btn.textContent = 'Envoi en cours…';
 
-                /* décliné seulement si les deux événements sont refusés */
+                /* décliné seulement si les deux événements sont refusés.
+                   Le serveur recalcule cette valeur : c'est lui qui fait foi. */
                 var reponse = (mairie.value === 'non' && houppa.value === 'non') ? 'decline' : 'confirme';
 
-                supa.from('invites').update({
-                    rsvp: reponse,
-                    mairie: mairie.value,
-                    nb_mairie: mairie.value === 'oui' ? parseInt(el('nbMairie').value, 10) : 0,
-                    houppa: houppa.value,
-                    nb_houppa: houppa.value === 'oui' ? parseInt(el('nbHouppa').value, 10) : 0,
-                    message: el('guestMessage').value
-                }).eq('token', currentToken)
+                supa.rpc('repondre_invite', {
+                    p_token: currentToken,
+                    p_mairie: mairie.value,
+                    p_nb_mairie: mairie.value === 'oui' ? parseInt(el('nbMairie').value, 10) : 0,
+                    p_houppa: houppa.value,
+                    p_nb_houppa: houppa.value === 'oui' ? parseInt(el('nbHouppa').value, 10) : 0,
+                    p_message: el('guestMessage').value
+                })
                     .then(function (res) {
                         if (res.error) throw res.error;
                         showThanks(reponse);
