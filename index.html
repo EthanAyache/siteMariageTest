@@ -26,7 +26,8 @@
             --paper-3: #e3dac6;
             --fold: #d8cfb9;
             --serif: 'Cormorant Garamond', Georgia, serif;
-            --script: 'Pinyon Script', cursive;
+            /* pas de repli sur « cursive » : sous Windows c'est Comic Sans */
+            --script: 'Pinyon Script', 'Cormorant Garamond', Georgia, serif;
         }
 
         * { box-sizing: border-box; }
@@ -289,14 +290,18 @@
 
         /* pas de voile ici : fond.png a déjà un centre crème dégagé pour le texte.
            Un fond translucide délavait tout ce qui est sous le hero. */
-        /* la colonne de contenu reste à la largeur de conception (941),
-           même quand le site est plus large que le plateau (grand écran). */
+        /* Téléphone / tablette : le contenu occupe toute la largeur.
+           Grand écran (classe « wide » posée en JS) : colonne de 941 centrée,
+           sinon le texte s'étirerait sur toute la largeur. */
         .site-inner {
             background: transparent;
-            max-width: 941px;
             margin: 0 auto;
         }
 
+        .site.wide .site-inner { max-width: 941px; }
+
+        /* barre toujours pleine largeur ; elle se retire quand on descend
+           et revient dès qu'on remonte (classe posée en JS) */
         .nav {
             position: sticky;
             top: 0;
@@ -308,6 +313,13 @@
             background: #7d7768;
             padding: 32px 0;
             box-shadow: 0 2px 18px rgba(90, 84, 70, 0.18);
+            transition: transform .35s ease, box-shadow .35s ease;
+            will-change: transform;
+        }
+
+        .nav.nav-hidden {
+            transform: translateY(-100%);
+            box-shadow: none;
         }
 
         .nav button {
@@ -338,6 +350,22 @@
             width: 100%;
             height: var(--hero-h, 1412px);
             background: #fbf8f1 url('image/enveloppe/accueil.png') center center / cover no-repeat;
+            /* fondu du bas vers fond.png, peint derrière par .site :
+               aucune ligne de raccord visible entre les deux images */
+            -webkit-mask-image: linear-gradient(to bottom, #000 84%, transparent 100%);
+                    mask-image: linear-gradient(to bottom, #000 84%, transparent 100%);
+        }
+
+        /* grand écran : le hero est une colonne centrée, on fond aussi ses côtés */
+        .site.wide .hero-art {
+            -webkit-mask-image:
+                linear-gradient(to bottom, #000 84%, transparent 100%),
+                linear-gradient(to right, transparent 0%, #000 9%, #000 91%, transparent 100%);
+            -webkit-mask-composite: source-in;
+                    mask-image:
+                linear-gradient(to bottom, #000 84%, transparent 100%),
+                linear-gradient(to right, transparent 0%, #000 9%, #000 91%, transparent 100%);
+                    mask-composite: intersect;
         }
 
         /* centré dans le vide de l'arche d'accueil.png : entre le bas du
@@ -708,15 +736,16 @@
 
             <!-- le site d'invitation -->
             <div class="site" id="site">
-                <div class="site-inner">
-                    <div class="nav">
-                        <button type="button" data-scroll="top">Accueil</button>
-                        <div class="sep">|</div>
-                        <button type="button" data-scroll="infos">Houppa</button>
-                        <div class="sep" id="navSepRsvp">|</div>
-                        <button type="button" data-scroll="rsvp" id="navRsvp">RSVP</button>
-                    </div>
+                <!-- hors de .site-inner : la barre couvre toute la largeur de l'écran -->
+                <div class="nav" id="nav">
+                    <button type="button" data-scroll="top">Accueil</button>
+                    <div class="sep">|</div>
+                    <button type="button" data-scroll="infos">Houppa</button>
+                    <div class="sep" id="navSepRsvp">|</div>
+                    <button type="button" data-scroll="rsvp" id="navRsvp">RSVP</button>
+                </div>
 
+                <div class="site-inner">
                     <div class="hero">
                         <div class="hero-art">
                             <div class="hero-txt">
@@ -887,6 +916,10 @@
                 site.style.left = ((941 - sw) / 2) + 'px';
                 site.style.top = ((1672 - sh) / 2) + 'px';
 
+                /* au-delà de 25 % plus large que la conception, c'est un grand
+                   écran : on remet la colonne centrée (voir .site.wide) */
+                site.classList.toggle('wide', sw > 941 * 1.25);
+
                 /* le hero occupe une page pleine, barre de navigation déduite */
                 var navH = nav ? nav.offsetHeight : 94;
                 site.style.setProperty('--hero-h', Math.max(0, sh - navH) + 'px');
@@ -970,6 +1003,37 @@
             }
 
             tap.addEventListener('click', startOpen);
+
+            /* ============================================================
+               Barre de navigation : se retire quand on descend, revient
+               dès qu'on remonte. Le défilement a lieu dans .site, pas
+               dans la fenêtre. Un seuil de 6 unités évite les
+               tremblements dus aux micro-défilements du doigt.
+               ============================================================ */
+            var lastScroll = 0, navLockUntil = 0;
+            site.addEventListener('scroll', function () {
+                var y = site.scrollTop;
+                var navH = nav.offsetHeight;
+                if (performance.now() < navLockUntil) {
+                    lastScroll = y;
+                } else if (y <= navH) {
+                    nav.classList.remove('nav-hidden');
+                } else if (y > lastScroll + 6) {
+                    nav.classList.add('nav-hidden');
+                } else if (y < lastScroll - 6) {
+                    nav.classList.remove('nav-hidden');
+                }
+                if (Math.abs(y - lastScroll) > 6) lastScroll = y;
+            }, { passive: true });
+
+            /* un clic sur un onglet lance un défilement animé : la barre reste
+               visible le temps qu'il se termine */
+            Array.prototype.forEach.call(nav.querySelectorAll('[data-scroll]'), function (b) {
+                b.addEventListener('click', function () {
+                    nav.classList.remove('nav-hidden');
+                    navLockUntil = performance.now() + 1000;
+                });
+            });
 
             /* ============================================================
                Musique d'ambiance
