@@ -340,11 +340,19 @@
             background: #fbf8f1 url('image/enveloppe/accueil.png') center center / cover no-repeat;
         }
 
+        /* centré dans le vide de l'arche d'accueil.png : entre le bas du
+           monogramme (~32 %) et le haut de la scène de cérémonie (~68 %).
+           translateY(-50%) centre le bloc sur ce point, quelle que soit sa
+           hauteur. Le fond étant en « cover » rogné sur les côtés, les
+           positions verticales de l'image restent exactes à toute taille.
+           48 % et non 50 % : la ligne en Pinyon Script réserve de la place
+           au-dessus des lettres, ce qui décale le texte visible vers le bas. */
         .hero-txt {
             position: absolute;
             left: 0;
             right: 0;
-            top: 47%;
+            top: 48%;
+            transform: translateY(-50%);
             text-align: center;
             padding: 0 170px;
             z-index: 2;
