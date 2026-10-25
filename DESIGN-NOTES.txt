@@ -1,0 +1,6 @@
+Visuel créé avec l’outil intégré imagegen.
+Prompt : photographie éditoriale de mariage juif, houppa ivoire fleurie, roses blanches et olivier, jardin de domaine français, lumière chaude, aucun texte ni personne.
+Image : image/wedding-houppa.png. Visuel d’ambiance généré, il ne représente pas le lieu réel.
+Dates et lieu repris provisoirement du faire-part existant : 13 juin 2027, Domaine des Oliviers, Provence. À confirmer : l’ancienne page d’accueil indiquait 18 février 2027, Domaine de Montcel.
+Design : index.html, wedding.css, wedding.js. Styles administration : wedding-admin.css.
+Les appels RSVP et l’authentification existants sont conservés ; aucun enregistrement réel n’a été testé.

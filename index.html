@@ -349,7 +349,7 @@
             position: relative;
             width: 100%;
             height: var(--hero-h, 1412px);
-            background: #fbf8f1 url('image/enveloppe/accueil.png') center center / cover no-repeat;
+            background: #fbf8f1 url('image/enveloppe/accueil-retouche.png') center center / cover no-repeat;
             /* fondu du bas vers fond.png, peint derrière par .site :
                aucune ligne de raccord visible entre les deux images */
             -webkit-mask-image: linear-gradient(to bottom, #000 84%, transparent 100%);
@@ -697,8 +697,41 @@
         }
 
         [hidden] { display: none !important; }
-    </style>
-</head>
+    
+/* Retouches fidèles au faire-part d’origine. */
+.site{transform-origin:0 0;background:#f1ebe0;background-image:none;overscroll-behavior:contain}
+.site-inner{background:#f7f3ea url('image/enveloppe/fond.png') center top / 100% auto repeat-y;box-shadow:0 0 100px rgba(95,79,52,.05)}
+.hero-art{height:auto;aspect-ratio:2/3;background-size:100% 100%;background-position:center top;-webkit-mask-image:none;mask-image:none}
+.site.wide .hero-art{-webkit-mask-image:none;mask-image:none}
+.hero-txt{top:49%;padding:0 168px}
+.hero-txt .names{font-size:76px;line-height:1.2}
+.hero-hebrew{font:400 28px/1.6 'Noto Serif Hebrew',serif;color:#6e695b;margin:0 0 22px}
+.hero-translation{font:italic 23px/1.4 var(--serif);color:#827a69;margin:0 0 28px}
+.hero-txt .date{letter-spacing:.12em;text-indent:0;font-size:28px}
+.hero-txt .place{font-size:28px;margin-top:14px}
+.hero-txt .rule{width:60px;height:1px;margin:24px auto}
+.nav{background:#7d7768;padding:28px 0;box-shadow:0 3px 14px #5e53351a}
+.nav button{font-size:26px;letter-spacing:.18em;padding:8px}
+.panel{padding-top:85px}.panel-in{padding:32px 0}
+.section{padding-top:95px}.event{padding:30px 0}
+.rsvp{background:rgba(253,250,243,.7);border:1px solid #d8cbb5;padding:45px 32px;border-radius:220px 220px 8px 8px}
+.rsvp h2{padding-top:30px}.rsvp input{accent-color:#7d7768}
+button:focus-visible,a:focus-visible,select:focus-visible,textarea:focus-visible{outline:3px solid #a79877;outline-offset:7px}
+.skip-envelope{position:absolute;z-index:7;bottom:70px;left:50%;transform:translateX(-50%);font:italic 25px var(--serif);border:0;border-bottom:1px solid #b9ae98;background:none;color:#6f6653;padding:12px;white-space:nowrap;cursor:pointer}
+@media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important;transition:none!important}}
+
+/* Une seule couleur de papier et des décors fondus, sans tuile répétée. */
+.site-inner{position:relative;isolation:isolate;background:#f7f3ea;background-image:none}
+.hero-art,.site.wide .hero-art{-webkit-mask-image:linear-gradient(to bottom,#000 0%,#000 92%,transparent 100%);mask-image:linear-gradient(to bottom,#000 0%,#000 92%,transparent 100%)}
+.arch-verse{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:3;overflow:visible}
+.arch-verse text{font-family:'Noto Serif Hebrew',serif;font-size:38px;fill:#6e695b;font-weight:400}
+.hero-txt{top:49%}
+.panel,.section,.footer{position:relative;isolation:isolate}
+.panel::before,.section::before,.footer::before{content:'';position:absolute;inset:0;z-index:-1;pointer-events:none;background:url('image/enveloppe/fond.png') center center / 100% auto no-repeat;-webkit-mask-image:linear-gradient(to bottom,transparent,#000 140px,#000 calc(100% - 140px),transparent);mask-image:linear-gradient(to bottom,transparent,#000 140px,#000 calc(100% - 140px),transparent)}
+.footer::before{background-position:center bottom;-webkit-mask-image:linear-gradient(to bottom,transparent,#000);mask-image:linear-gradient(to bottom,transparent,#000)}
+.envelope-lining{position:absolute;inset:0;display:block;width:941px;height:1672px;pointer-events:none}.env-img{filter:drop-shadow(0 12px 22px rgba(120,104,74,.14))}.throat-light{background:radial-gradient(80% 70% at 50% 20%,rgba(255,250,240,.35),transparent 70%)}.sheet{border:1px solid #d9ccb4;box-shadow:0 7px 18px rgba(90,74,48,.12)}
+</style>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+Hebrew:wght@400&display=swap" rel="stylesheet"></head>
 
 <body>
     <div class="fit" id="fit">
@@ -708,14 +741,14 @@
             <div class="scene">
                 <!-- corps de l'enveloppe (image : dos + rabats avant déjà composés) -->
                 <div class="env layer-back" id="envBack">
-                    <img class="env-img" src="image/enveloppe/envbody3.png" alt="">
+                    <img class="env-img" src="image/enveloppe/envbody3.png" alt=""><svg class="envelope-lining" viewBox="0 0 941 1672" aria-hidden="true"><defs><linearGradient id="liningIvory" x1="0" y1="0" x2="0.15" y2="1"><stop stop-color="#eee5d6"/><stop offset="1" stop-color="#e2d6bf"/></linearGradient><pattern id="liningGrain" width="7" height="7" patternUnits="userSpaceOnUse"><path d="M0 2h2m2 3h2" stroke="#b7a88c" stroke-width=".45" opacity=".16"/></pattern><clipPath id="liningCut"><path d="M16 15H925V438L472 1070 16 438Z"/></clipPath></defs><g clip-path="url(#liningCut)"><path d="M16 15H925V438L472 1070 16 438Z" fill="url(#liningIvory)"/><path d="M16 15H925V438L472 1070 16 438Z" fill="url(#liningGrain)"/></g><path d="M16 438L472 1070 925 438" fill="none" stroke="#b8a88c" stroke-width="1.4" stroke-linejoin="round"/><path d="M17 441L472 1073 924 441" fill="none" stroke="#faf4e8" stroke-width="1" opacity=".8"/></svg>
                     <div class="throat-light" id="throatLight"></div>
                 </div>
 
                 <!-- le carton blanc qui monte de l'enveloppe, masqué par le V des rabats -->
                 <div class="sheet-window layer-sheet" id="sheetWin">
                     <div class="sheet" id="sheet">
-                        <img class="sheet-art" src="image/enveloppe/accueil.png" alt="">
+                        <img class="sheet-art" src="image/enveloppe/accueil-retouche.png" alt="">
                     </div>
                 </div>
 
@@ -726,7 +759,7 @@
 
                 <div class="pulse" id="pulse"></div>
                 <button class="tap" id="tap" type="button" aria-label="Ouvrir l'invitation"></button>
-                <div class="hint" id="hint">Touchez le cachet pour ouvrir</div>
+                <div class="hint" id="hint">Touchez le cachet pour ouvrir</div><button class="skip-envelope" id="skipEnvelope" type="button">Voir directement l’invitation</button>
 
                 <div class="sheen" id="sheen"></div>
             </div>
@@ -747,12 +780,12 @@
 
                 <div class="site-inner">
                     <div class="hero">
-                        <div class="hero-art">
+                        <div class="hero-art"><svg class="arch-verse" viewBox="0 0 1024 1536" role="img" aria-labelledby="archVerseTitle"><title id="archVerseTitle">אני לדודי ודודי לי</title><defs><path id="innerArchVerse" d="M 247,625 C 247,365 380,282 512,282 C 644,282 777,365 777,625"/></defs><text lang="he" direction="rtl" text-anchor="middle"><textPath href="#innerArchVerse" startOffset="50%" textLength="580" lengthAdjust="spacing">אני לדודי ודודי לי</textPath></text></svg>
                             <div class="hero-txt">
-                                <div class="names"> <br> Salomée &amp; Ethan</div>
+                                <div class="names">Salomée &amp; Ethan</div>
                                 <div class="rule"></div>
-                                <div class="date">Jeudi 18 Fevrier 2027</div>
-                                <div class="place">Dolce Versailles . Domaine de Montcel</div>
+                                <div class="date">Dimanche 13 Juin 2027</div>
+                                <div class="place">Domaine des Oliviers · Provence</div>
                             </div>
                         </div>
                     </div>
@@ -882,15 +915,17 @@
                 pulse = el('pulse'), tap = el('tap'), hint = el('hint'),
                 sheen = el('sheen'), veil = el('veil'), flash = el('flash'), site = el('site'),
                 nav = document.querySelector('.nav');
+            fit.appendChild(site);
+            var siteScale = 1;
 
             /* ---- timeline (valeurs du design, rythme « Équilibré ») ---- */
             var D = {
-                openS: 900, openE: 3200,
-                sheetS: 2100, sheetE: 3300,
-                downS: 3100, downE: 4000,
-                fadeS: 3900, fadeE: 5000,
-                siteS: 4800, siteE: 6100,
-                dur: 6800, sheenE: 1250,
+                openS: 350, openE: 1600,
+                sheetS: 800, sheetE: 2000,
+                downS: 1900, downE: 2700,
+                fadeS: 2600, fadeE: 3500,
+                siteS: 3200, siteE: 4100,
+                dur: 4300, sheenE: 850,
                 downPx: 620, maxA: 104
             };
 
@@ -910,11 +945,12 @@
                    fenêtre en unités du plateau (division par l'échelle), puis on
                    recentre : sur un iPhone, sc vaut w/941, donc la largeur reste
                    941 et seule la hauteur s'allonge (~2045 au lieu de 1672). */
-                var sw = w / sc, sh = h / sc;
+                siteScale = Math.min(w / 941, 0.72);
+                var sw = w / siteScale, sh = h / siteScale;
                 site.style.width = sw + 'px';
                 site.style.height = sh + 'px';
-                site.style.left = ((941 - sw) / 2) + 'px';
-                site.style.top = ((1672 - sh) / 2) + 'px';
+                site.style.left = '0px';
+                site.style.top = '0px';
 
                 /* au-delà de 25 % plus large que la conception, c'est un grand
                    écran : on remet la colonne centrée (voir .site.wide) */
@@ -923,6 +959,7 @@
                 /* le hero occupe une page pleine, barre de navigation déduite */
                 var navH = nav ? nav.offsetHeight : 94;
                 site.style.setProperty('--hero-h', Math.max(0, sh - navH) + 'px');
+                if (started && !raf) site.style.transform = 'scale(' + siteScale + ')';
             }
 
             /* ---- rendu d'une image de l'animation ---- */
@@ -939,10 +976,10 @@
                 sheetWin.style.clipPath = 'polygon(0% 0%, 100% 0%, 100% ' + (26.2 + d) + '%, 50.16% ' + (64 + d) + '%, 0% ' + (26.2 + d) + '%)';
 
                 flap.style.transform = slide + ' rotateX(' + a + 'deg)';
-                flap.style.opacity = String(1 - clamp((a - 84) / (97 - 84), 0, 1));
+                flap.style.opacity = String(1 - clamp((a - 18) / (60 - 18), 0, 1));
 
                 var b = lerp(1, 0.82, clamp(a / D.maxA, 0, 1));
-                flapPaper.style.filter = 'brightness(' + b + ') drop-shadow(0 ' + (6 + a * 0.25) + 'px ' + (14 + a * 0.2) + 'px rgba(90,74,48,0.20))';
+                flapPaper.style.filter = 'drop-shadow(0 3px 5px rgba(90,74,48,0.12))';
 
                 throatLight.style.opacity = String(clamp(a / 55, 0, 1) * 0.4);
 
@@ -961,7 +998,7 @@
 
                 var e = ease(clamp((ms - D.siteS) / (D.siteE - D.siteS), 0, 1));
                 site.style.opacity = String(e);
-                site.style.transform = 'translateY(' + lerp(22, 0, e) + 'px) scale(' + lerp(1.03, 1, e) + ')';
+                site.style.transform = 'translateY(' + lerp(22, 0, e) + 'px) scale(' + (siteScale * lerp(1.03, 1, e)) + ')';
                 site.style.pointerEvents = e > 0.9 ? 'auto' : 'none';
             }
 
@@ -990,6 +1027,7 @@
                 tap.style.pointerEvents = 'none';
                 tap.style.cursor = 'default';
                 hint.style.opacity = '0';
+                el('skipEnvelope').hidden = true;
                 startMusic();
 
                 if (reduced) {
@@ -1003,6 +1041,7 @@
             }
 
             tap.addEventListener('click', startOpen);
+            el('skipEnvelope').addEventListener('click', function () { started = true; tap.disabled = true; el('skipEnvelope').hidden = true; if (raf) cancelAnimationFrame(raf); raf = null; resize(); render(D.dur); });
 
             /* ============================================================
                Barre de navigation : se retire quand on descend, revient
@@ -1157,7 +1196,7 @@
                         currentToken = token;
                         currentPlaces = inv.places || 1;
 
-                        rsvpSection.hidden = false;
+                        rsvpSection.hidden = false; el('navRsvp').hidden = false; el('navSepRsvp').hidden = false;
                         el('rsvpGreeting').textContent = 'Cher(e) ' + inv.nom + ', merci de confirmer votre présence.';
                         fillPlaces(el('nbMairie'), currentPlaces);
                         fillPlaces(el('nbHouppa'), currentPlaces);
@@ -1232,3 +1271,9 @@
 </body>
 
 </html>
+
+
+
+
+
+

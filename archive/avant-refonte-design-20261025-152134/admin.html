@@ -1,0 +1,1001 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin — Salomée & Ethan</title>
+    <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Lato:wght@300;400;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        :root {
+            --or: #D4AF37;
+            --or-light: #f0e4a8;
+            --or-dark: #bfa05f;
+            --fond: #f3eeeb;
+            --blanc: #ffffff;
+            --texte: #4a4a4a;
+            --gris: #a0a0a0;
+            --vert: #6abf6a;
+            --rouge: #e07070;
+            --orange: #e0a070;
+        }
+
+        .detail-line { font-size: 0.9rem; color: var(--texte); margin-top: 0.6rem; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px dashed rgba(0,0,0,0.05); padding-bottom: 0.4rem; }
+        .detail-line:last-child { border-bottom: none; }
+
+        body {
+            background-color: var(--fond);
+            font-family: 'Lato', sans-serif;
+            color: var(--texte);
+            min-height: 100vh;
+        }
+
+        header {
+            background: var(--blanc);
+            border-bottom: 1px solid rgba(212,175,55,0.2);
+            padding: 1.5rem 2.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 2px 20px rgba(0,0,0,0.05);
+        }
+
+        .header-logo { font-family: 'Great Vibes', cursive; font-size: 2rem; color: var(--or); }
+        .header-title { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 3px; color: var(--gris); }
+        .header-right { display: flex; align-items: center; gap: 1rem; }
+
+        .btn-retour {
+            text-decoration: none;
+            color: var(--or);
+            border: 1px solid var(--or);
+            padding: 8px 20px;
+            border-radius: 30px;
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            transition: all 0.3s;
+        }
+        .btn-retour:hover { background: var(--or); color: #fff; }
+
+        main { max-width: 1200px; margin: 0 auto; padding: 3rem 2rem; }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 3rem;
+        }
+
+        .stat-card {
+            background: var(--blanc);
+            border-radius: 12px;
+            padding: 1.5rem 2rem;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+            border-left: 4px solid var(--or);
+            animation: fadeInUp 0.5s ease both;
+        }
+        .stat-card:nth-child(2) { border-color: var(--vert); animation-delay: 0.1s; }
+        .stat-card:nth-child(3) { border-color: var(--rouge); animation-delay: 0.2s; }
+        .stat-card:nth-child(4) { border-color: var(--orange); animation-delay: 0.3s; }
+
+        .stat-number { font-size: 2.5rem; font-weight: 300; color: var(--or); line-height: 1; }
+        .stat-card:nth-child(2) .stat-number { color: var(--vert); }
+        .stat-card:nth-child(3) .stat-number { color: var(--rouge); }
+        .stat-card:nth-child(4) .stat-number { color: var(--orange); }
+        .stat-label { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 2px; color: var(--gris); margin-top: 0.4rem; }
+
+        .tab-nav {
+            display: flex;
+            border-bottom: 2px solid rgba(212,175,55,0.2);
+            margin-bottom: 2.5rem;
+        }
+
+        .tab-btn {
+            padding: 1rem 2rem;
+            background: none;
+            border: none;
+            font-family: 'Lato', sans-serif;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: var(--gris);
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+            margin-bottom: -2px;
+            transition: all 0.3s;
+        }
+        .tab-btn:hover { color: var(--or); }
+        .tab-btn.active { color: var(--or); border-bottom-color: var(--or); font-weight: 700; }
+
+        .tab-panel { display: none; }
+        .tab-panel.active { display: block; animation: fadeInUp 0.3s ease both; }
+
+        .toolbar {
+            display: flex;
+            gap: 1rem;
+            border-bottom: 2px solid #D4AF37;
+            padding-bottom: 1rem;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .search-input {
+            flex: 1;
+            min-width: 200px;
+            padding: 10px 16px;
+            border: 1px solid rgba(212,175,55,0.3);
+            border-radius: 30px;
+            font-family: 'Lato', sans-serif;
+            font-size: 0.9rem;
+            color: var(--texte);
+            background: var(--blanc);
+            outline: none;
+            transition: border-color 0.3s;
+        }
+        .search-input:focus { border-color: var(--or); }
+
+        .filter-btn {
+            border: 1px solid rgba(212,175,55,0.3);
+            background: var(--blanc);
+            font-family: 'Lato', sans-serif;
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            cursor: pointer;
+            color: var(--gris);
+            padding: 10px 20px;
+            border-radius: 30px;
+            transition: all 0.3s;
+        }
+        .filter-btn.active, .filter-btn:hover { background: var(--or); color: #fff; border-color: var(--or); }
+        .filter-btn.active-vert { background: var(--vert); border-color: var(--vert); color: #fff; }
+        .filter-btn.active-rouge { background: var(--rouge); border-color: var(--rouge); color: #fff; }
+
+        .table-wrapper {
+            background: var(--blanc);
+            border-radius: 16px;
+            box-shadow: 0 4px 30px rgba(0,0,0,0.06);
+            overflow: hidden;
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 750px;
+        }
+
+        thead {
+            background: linear-gradient(135deg, #faf7f0, #f3eeeb);
+            border-bottom: 2px solid rgba(212,175,55,0.2);
+        }
+
+        th {
+            padding: 1rem 1.2rem;
+            text-align: left;
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: var(--or);
+            font-weight: 700;
+            white-space: nowrap;
+        }
+
+        th:nth-child(1) { width: 25%; }
+        th:nth-child(2) { width: 10%; }
+        th:nth-child(3) { width: 14%; }
+        th:nth-child(4) { width: 37%; }
+        th:nth-child(5) { width: 14%; min-width: 110px; }
+
+        td {
+            padding: 1rem 1.2rem;
+            border-bottom: 1px solid rgba(0,0,0,0.04);
+            font-size: 0.9rem;
+            vertical-align: middle;
+        }
+
+        tr:last-child td { border-bottom: none; }
+        tr { transition: background 0.2s; }
+        tr:hover td { background: rgba(212,175,55,0.03); }
+
+        .badge {
+            display: inline-block;
+            padding: 4px 14px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-weight: 700;
+        }
+        .badge-attente { background: #f5f0e0; color: var(--or-dark); }
+        .badge-confirme { background: #e8f5e8; color: #4a9a4a; }
+        .badge-decline { background: #fde8e8; color: #c05050; }
+
+        .lien-cell { display: flex; align-items: center; gap: 0.5rem; flex-wrap: nowrap; }
+        .lien-text {
+            font-size: 0.78rem;
+            color: var(--gris);
+            font-family: monospace;
+            max-width: 200px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .actions-cell {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            flex-wrap: nowrap;
+            white-space: nowrap;
+        }
+
+        .btn-copy {
+            background: none;
+            border: 1px solid rgba(212,175,55,0.4);
+            border-radius: 6px;
+            padding: 5px 12px;
+            cursor: pointer;
+            font-size: 0.8rem;
+            color: var(--or);
+            transition: all 0.2s;
+            white-space: nowrap;
+            font-family: 'Lato', sans-serif;
+        }
+        .btn-copy:hover { background: var(--or); color: #fff; border-color: var(--or); }
+        .btn-copy.copied { background: var(--vert); color: #fff; border-color: var(--vert); }
+
+        .btn-edit {
+            background: none;
+            border: 1px solid rgba(212,175,55,0.4);
+            border-radius: 6px;
+            padding: 5px 10px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: all 0.2s;
+            white-space: nowrap;
+            font-family: 'Lato', sans-serif;
+            color: var(--or);
+        }
+        .btn-edit:hover { background: var(--or); border-color: var(--or); }
+
+        .btn-delete {
+            background: none;
+            border: 1px solid rgba(224,112,112,0.4);
+            border-radius: 6px;
+            padding: 5px 10px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: all 0.2s;
+            white-space: nowrap;
+            font-family: 'Lato', sans-serif;
+            color: var(--rouge);
+        }
+        .btn-delete:hover { background: var(--rouge); color: #fff; border-color: var(--rouge); }
+
+        .messages-subtitle {
+            font-size: 0.85rem;
+            color: var(--gris);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 2rem;
+        }
+
+        .messages-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .message-card {
+            background: var(--blanc);
+            border-radius: 12px;
+            padding: 1.5rem;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+            border-top: 3px solid var(--or);
+            animation: fadeInUp 0.4s ease both;
+        }
+
+        .message-card-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 1rem;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+
+        .message-author {
+            font-weight: 700;
+            font-size: 1rem;
+            color: var(--texte);
+        }
+
+        .message-text {
+            font-size: 0.95rem;
+            line-height: 1.7;
+            color: var(--texte);
+            font-style: italic;
+            border-left: 3px solid var(--or-light);
+            padding-left: 1rem;
+        }
+
+        .messages-empty {
+            text-align: center;
+            padding: 4rem;
+            color: var(--gris);
+            font-style: italic;
+            background: var(--blanc);
+            border-radius: 16px;
+            box-shadow: 0 4px 30px rgba(0,0,0,0.06);
+            grid-column: 1 / -1;
+        }
+
+        .loading-row td { text-align: center; padding: 4rem; color: var(--gris); font-style: italic; }
+        .empty { text-align: center; padding: 4rem; color: var(--gris); font-style: italic; }
+
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(16px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .row-anim { animation: fadeInUp 0.4s ease both; }
+
+        /* ── MODALS ─────────────────────────────────────────────── */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.4);
+            z-index: 200;
+            align-items: center;
+            justify-content: center;
+        }
+        .modal-overlay.active { display: flex; }
+
+        .modal-box {
+            background: var(--blanc);
+            border-radius: 16px;
+            padding: 2.5rem;
+            width: 100%;
+            max-width: 440px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+            animation: fadeInUp 0.3s ease both;
+            position: relative;
+        }
+
+        .modal-title {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: var(--texte);
+            margin-bottom: 1.8rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid rgba(212,175,55,0.2);
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 1.2rem;
+            right: 1.2rem;
+            background: none;
+            border: none;
+            font-size: 1.4rem;
+            cursor: pointer;
+            color: var(--gris);
+            line-height: 1;
+            padding: 4px 8px;
+            border-radius: 6px;
+            transition: all 0.2s;
+        }
+        .modal-close:hover { background: rgba(0,0,0,0.06); color: var(--texte); }
+
+        .modal-field { margin-bottom: 1.4rem; }
+        .modal-field label {
+            display: block;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: var(--gris);
+            margin-bottom: 0.5rem;
+            font-weight: 700;
+        }
+        .modal-field input {
+            width: 100%;
+            padding: 10px 14px;
+            border: 1px solid rgba(212,175,55,0.35);
+            border-radius: 8px;
+            font-family: 'Lato', sans-serif;
+            font-size: 0.95rem;
+            color: var(--texte);
+            background: var(--fond);
+            outline: none;
+            transition: border-color 0.2s;
+        }
+        .modal-field input:focus { border-color: var(--or); background: #fff; }
+
+        .modal-actions {
+            display: flex;
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+
+        .btn-primary {
+            flex: 1;
+            padding: 11px 20px;
+            background: var(--or);
+            color: #fff;
+            border: none;
+            border-radius: 30px;
+            font-family: 'Lato', sans-serif;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            cursor: pointer;
+            font-weight: 700;
+            transition: all 0.2s;
+        }
+        .btn-primary:hover { background: var(--or-dark); }
+        .btn-primary:disabled { opacity: 0.6; cursor: not-allowed; }
+
+        .btn-secondary {
+            padding: 11px 20px;
+            background: transparent;
+            color: var(--gris);
+            border: 1px solid rgba(0,0,0,0.15);
+            border-radius: 30px;
+            font-family: 'Lato', sans-serif;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .btn-secondary:hover { border-color: var(--gris); color: var(--texte); }
+
+        /* ── Modal Suppression spécifique ───────────────────────── */
+        .delete-icon-wrap {
+            width: 72px;
+            height: 72px;
+            background: #fde8e8;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            margin: 0 auto 1.5rem;
+        }
+
+        .delete-modal-title {
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: var(--texte);
+            text-align: center;
+            margin-bottom: 0.8rem;
+        }
+
+        .delete-modal-body {
+            color: var(--gris);
+            font-size: 0.95rem;
+            text-align: center;
+            line-height: 1.7;
+            margin-bottom: 0.5rem;
+        }
+
+        .delete-modal-warning {
+            color: var(--rouge);
+            font-size: 0.82rem;
+            text-align: center;
+            margin-bottom: 2rem;
+            font-style: italic;
+        }
+
+        .btn-danger {
+            flex: 1;
+            padding: 11px 20px;
+            background: var(--rouge);
+            color: #fff;
+            border: none;
+            border-radius: 30px;
+            font-family: 'Lato', sans-serif;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            cursor: pointer;
+            font-weight: 700;
+            transition: all 0.2s;
+        }
+        .btn-danger:hover { background: #c05050; }
+        .btn-danger:disabled { opacity: 0.6; cursor: not-allowed; }
+
+        @media (max-width: 768px) {
+            header { padding: 1rem 1.5rem; }
+            main { padding: 2rem 1rem; }
+            th, td { padding: 0.75rem 0.8rem; }
+            .lien-text { max-width: 100px; }
+            .header-title { display: none; }
+            .tab-btn { padding: 0.75rem 1rem; font-size: 0.75rem; letter-spacing: 1px; }
+            .modal-box { margin: 1rem; padding: 1.8rem; }
+        }
+    </style>
+</head>
+<body style="display: none;">
+
+    <header>
+        <div>
+            <div class="header-logo">Salomée & Ethan</div>
+            <div class="header-title">Interface Administration</div>
+        </div>
+        <div class="header-right">
+            <a href="index.html" class="btn-retour">← Site</a>
+            <button id="logoutBtn" class="btn-retour" style="background: transparent; cursor: pointer; font-family: 'Lato', sans-serif;">Se déconnecter</button>
+        </div>
+    </header>
+
+    <main>
+
+        <!-- Stats -->
+        <div class="stats">
+            <div class="stat-card">
+                <div class="stat-number" id="statTotal">—</div>
+                <div class="stat-label">Invités total</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="statConfirme">—</div>
+                <div class="stat-label">Confirmés</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="statDecline">—</div>
+                <div class="stat-label">Déclinés</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="statAttente">—</div>
+                <div class="stat-label">En attente</div>
+            </div>
+        </div>
+
+        <!-- Onglets -->
+        <div class="tab-nav">
+            <button class="tab-btn active" onclick="switchTab('invites', this)">👥 Invités</button>
+            <button class="tab-btn" onclick="switchTab('messages', this)">💬 Messages <span id="msgCount"></span></button>
+            <button class="tab-btn" onclick="switchTab('details', this)">📋 Détails RSVP</button>
+        </div>
+
+        <!-- Panel Invités -->
+        <div class="tab-panel active" id="panel-invites">
+            <div class="toolbar">
+                <input type="text" class="search-input" id="searchInput" placeholder="Rechercher un invité...">
+                <button class="filter-btn active" onclick="setFilter('tous', this)">Tous</button>
+                <button class="filter-btn" onclick="setFilter('confirme', this)">Confirmés</button>
+                <button class="filter-btn" onclick="setFilter('decline', this)">Déclinés</button>
+                <button class="filter-btn" onclick="setFilter('en attente', this)">En attente</button>
+                <button class="filter-btn" style="margin-left: auto; background-color: var(--or); color: #fff; border-color: var(--or);" onclick="downloadCSV()">📥 Exporter CSV</button>
+            </div>
+
+            <div class="table-wrapper">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Nom</th>
+                            <th>Places</th>
+                            <th>Statut</th>
+                            <th>Lien personnalisé</th>
+                            <th>Actions</th>
+                        </tr>
+                        <tr style="background: rgba(212,175,55,0.05); border-bottom: 2px solid rgba(212,175,55,0.2);">
+                            <td style="padding: 0.8rem 1.2rem;"><input type="text" id="quickAddName" placeholder="Nom du nouvel invité..." class="search-input" style="width: 100%; padding: 8px 12px; border-radius: 6px;" onkeypress="if(event.key === 'Enter') quickAddGuest(document.getElementById('quickAddBtn'))"></td>
+                            <td style="padding: 0.8rem 1.2rem;"><input type="number" id="quickAddPlaces" value="1" min="1" class="search-input" style="width: 70px; padding: 8px 12px; border-radius: 6px;" onkeypress="if(event.key === 'Enter') quickAddGuest(document.getElementById('quickAddBtn'))"></td>
+                            <td style="padding: 0.8rem 1.2rem;"><span class="badge badge-attente" style="background: transparent; border: 1px dashed var(--or-dark);">Nouveau</span></td>
+                            <td style="padding: 0.8rem 1.2rem; color: var(--gris); font-size: 0.8rem;">Généré auto.</td>
+                            <td style="padding: 0.8rem 1.2rem;">
+                                <button id="quickAddBtn" class="filter-btn active" style="padding: 8px 15px; border-radius: 6px; margin: 0; width: 100%; box-shadow: 0 2px 5px rgba(212,175,55,0.3);" onclick="quickAddGuest(this)">➕ Ajouter</button>
+                            </td>
+                        </tr>
+                    </thead>
+                    <tbody id="tableBody">
+                        <tr class="loading-row"><td colspan="5">Chargement des invités...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Panel Messages -->
+        <div class="tab-panel" id="panel-messages">
+            <p class="messages-subtitle" id="messagesSubtitle">Chargement...</p>
+            <div class="messages-grid" id="messagesGrid"></div>
+        </div>
+
+        <!-- Panel Détails RSVP -->
+        <div class="tab-panel" id="panel-details">
+            <p class="messages-subtitle" id="detailsSubtitle">Chargement...</p>
+            <div class="messages-grid" id="detailsGrid"></div>
+        </div>
+
+    </main>
+
+    <!-- ── MODAL Modifier/Ajouter ─────────────────────────────── -->
+    <div class="modal-overlay" id="guestModal">
+        <div class="modal-box">
+            <button class="modal-close" onclick="closeModal()" title="Fermer">✕</button>
+            <div class="modal-title" id="modalTitle">Modifier l'invité</div>
+            <input type="hidden" id="guestToken">
+
+            <div class="modal-field">
+                <label for="guestName">Nom de l'invité</label>
+                <input type="text" id="guestName" placeholder="Ex. Famille Dupont" autocomplete="off">
+            </div>
+
+            <div class="modal-field">
+                <label for="guestPlaces">Nombre de places</label>
+                <input type="number" id="guestPlaces" value="1" min="1" max="20">
+            </div>
+
+            <div class="modal-actions">
+                <button class="btn-secondary" onclick="closeModal()">Annuler</button>
+                <button class="btn-primary" id="saveBtn" onclick="saveGuest()">Enregistrer</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ── MODAL Confirmation Suppression ────────────────────── -->
+    <div class="modal-overlay" id="deleteModal">
+        <div class="modal-box" style="max-width: 400px;">
+            <div class="delete-icon-wrap">🗑️</div>
+            <div class="delete-modal-title">Supprimer l'invité ?</div>
+            <p class="delete-modal-body">
+                Vous êtes sur le point de supprimer<br>
+                <strong id="deleteGuestName" style="color: var(--texte); font-size: 1.05rem;"></strong>
+            </p>
+            <p class="delete-modal-warning">⚠️ Cette action est irréversible.</p>
+            <div class="modal-actions">
+                <button class="btn-secondary" onclick="closeDeleteModal()">Annuler</button>
+                <button class="btn-danger" id="confirmDeleteBtn">Supprimer</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const SITE_URL = window.location.origin;
+        let allInvites = [];
+        let currentFilter = 'tous';
+        let pendingDeleteToken = null;
+
+        const SUPABASE_URL = 'https://cdxtqfhnechqomkpediw.supabase.co';
+        const SUPABASE_ANON_KEY = 'sb_publishable_YnYkAoVGyWkGHnH-Cd-Ddg_wuvbL6Os';
+        const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+        // ── Auth ──────────────────────────────────────────────────
+        async function checkAuth() {
+            const { data: { session } } = await supabaseClient.auth.getSession();
+            if (!session) {
+                window.location.replace('login.html');
+            } else {
+                document.body.style.display = 'block';
+                loadInvites();
+            }
+        }
+
+        // ── Chargement ────────────────────────────────────────────
+        async function loadInvites() {
+            try {
+                const { data, error } = await supabaseClient
+                    .from('invites')
+                    .select('*')
+                    .order('nom', { ascending: true });
+                if (error) throw error;
+                allInvites = data || [];
+                updateStats();
+                renderTable();
+                renderMessages();
+                renderDetails();
+            } catch (err) {
+                console.error("Erreur Supabase:", err);
+                document.getElementById('tableBody').innerHTML =
+                    `<tr><td colspan="5" class="empty">Erreur de chargement.</td></tr>`;
+            }
+        }
+
+        // ── Stats ─────────────────────────────────────────────────
+        function updateStats() {
+            document.getElementById('statTotal').textContent = allInvites.length;
+            document.getElementById('statConfirme').textContent = allInvites.filter(i => i.rsvp === 'confirme').length;
+            document.getElementById('statDecline').textContent = allInvites.filter(i => i.rsvp === 'decline').length;
+            document.getElementById('statAttente').textContent = allInvites.filter(i => i.rsvp === 'en attente').length;
+        }
+
+        // ── Badge ─────────────────────────────────────────────────
+        function getBadge(rsvp) {
+            if (rsvp === 'confirme') return `<span class="badge badge-confirme">✓ Confirmé</span>`;
+            if (rsvp === 'decline') return `<span class="badge badge-decline">✗ Décliné</span>`;
+            return `<span class="badge badge-attente">⏳ En attente</span>`;
+        }
+
+        // ── Table invités ─────────────────────────────────────────
+        function renderTable() {
+            const search = document.getElementById('searchInput').value.toLowerCase();
+            const filtered = allInvites.filter(invite => {
+                const matchSearch = invite.nom.toLowerCase().includes(search);
+                const matchFilter = currentFilter === 'tous' || invite.rsvp === currentFilter;
+                return matchSearch && matchFilter;
+            });
+
+            const tbody = document.getElementById('tableBody');
+            if (filtered.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="5" class="empty">Aucun invité trouvé.</td></tr>`;
+                return;
+            }
+
+            const safeEscape = (str) => String(str).replace(/'/g, "\\'").replace(/"/g, "&quot;");
+            tbody.innerHTML = filtered.map((invite, i) => {
+                const lien = `${SITE_URL}/index.html?token=${invite.token}`;
+                return `
+                <tr class="row-anim" style="animation-delay:${i * 0.04}s">
+                    <td><strong>${invite.nom}</strong></td>
+                    <td>${invite.places} place${invite.places > 1 ? 's' : ''}</td>
+                    <td>${getBadge(invite.rsvp)}</td>
+                    <td>
+                        <div class="lien-cell">
+                            <span class="lien-text" title="${lien}">${lien}</span>
+                            <button class="btn-copy" onclick="copyLink(this, '${lien}')">Copier</button>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="actions-cell">
+                            <button class="btn-edit" title="Modifier" onclick="openEditModal('${invite.token}')">✏️</button>
+                            <button class="btn-delete" title="Supprimer" onclick="deleteGuest('${invite.token}', '${safeEscape(invite.nom)}')">🗑️</button>
+                        </div>
+                    </td>
+                </tr>`;
+            }).join('');
+        }
+
+        // ── Messages ──────────────────────────────────────────────
+        function renderMessages() {
+            const avecMessage = allInvites.filter(i => i.message && i.message.trim() !== '');
+            const grid = document.getElementById('messagesGrid');
+            const subtitle = document.getElementById('messagesSubtitle');
+            const countBadge = document.getElementById('msgCount');
+
+            countBadge.textContent = avecMessage.length > 0 ? `(${avecMessage.length})` : '';
+
+            if (avecMessage.length === 0) {
+                subtitle.textContent = 'Aucun message pour le moment';
+                grid.innerHTML = `<div class="messages-empty">💌 Les messages de vos invités apparaîtront ici.</div>`;
+                return;
+            }
+
+            subtitle.textContent = `${avecMessage.length} message${avecMessage.length > 1 ? 's' : ''} reçu${avecMessage.length > 1 ? 's' : ''}`;
+
+            grid.innerHTML = avecMessage.map((invite, i) => `
+                <div class="message-card row-anim" style="animation-delay:${i * 0.06}s">
+                    <div class="message-card-header">
+                        <span class="message-author">${invite.nom}</span>
+                        ${getBadge(invite.rsvp)}
+                    </div>
+                    <p class="message-text">"${invite.message}"</p>
+                </div>
+            `).join('');
+        }
+
+        // ── Détails RSVP ──────────────────────────────────────────
+        function renderDetails() {
+            const aRepondu = allInvites.filter(i => i.rsvp === 'confirme' || i.rsvp === 'decline');
+            const grid = document.getElementById('detailsGrid');
+            const subtitle = document.getElementById('detailsSubtitle');
+
+            if (aRepondu.length === 0) {
+                subtitle.textContent = 'Aucune réponse pour le moment';
+                grid.innerHTML = `<div class="messages-empty">📋 Les détails des présences apparaîtront ici une fois que vos invités auront répondu.</div>`;
+                return;
+            }
+
+            subtitle.textContent = `${aRepondu.length} réponse${aRepondu.length > 1 ? 's' : ''}`;
+
+            grid.innerHTML = aRepondu.map((invite, i) => {
+                const places = invite.places || 1;
+                const textMairie = invite.mairie === 'oui' ? `<span style="color: var(--vert)">Oui (${invite.nb_mairie || 0}/${places})</span>` : `<span style="color: var(--rouge)">Non</span>`;
+                const textHouppa = invite.houppa === 'oui' ? `<span style="color: var(--vert)">Oui (${invite.nb_houppa || 0}/${places})</span>` : `<span style="color: var(--rouge)">Non</span>`;
+
+                return `
+                <div class="message-card row-anim" style="animation-delay:${i * 0.06}s">
+                    <div class="message-card-header" style="margin-bottom: 0.5rem;">
+                        <span class="message-author">${invite.nom}</span>
+                        ${getBadge(invite.rsvp)}
+                    </div>
+                    <div class="detail-line"><span>Mairie & After :</span> <strong>${textMairie}</strong></div>
+                    <div class="detail-line"><span>Houppa & Réc. :</span> <strong>${textHouppa}</strong></div>
+                </div>`;
+            }).join('');
+        }
+
+        // ── Onglets ───────────────────────────────────────────────
+        function switchTab(tab, btn) {
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+            btn.classList.add('active');
+            document.getElementById(`panel-${tab}`).classList.add('active');
+        }
+
+        // ── Copier lien ───────────────────────────────────────────
+        function copyLink(btn, lien) {
+            navigator.clipboard.writeText(lien).then(() => {
+                btn.textContent = '✓ Copié !';
+                btn.classList.add('copied');
+                setTimeout(() => { btn.textContent = 'Copier'; btn.classList.remove('copied'); }, 2000);
+            });
+        }
+
+        // ── Filtre ────────────────────────────────────────────────
+        function setFilter(filter, btn) {
+            currentFilter = filter;
+            document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active', 'active-vert', 'active-rouge'));
+            if (filter === 'confirme') btn.classList.add('active-vert');
+            else if (filter === 'decline') btn.classList.add('active-rouge');
+            else btn.classList.add('active');
+            renderTable();
+        }
+
+        document.getElementById('searchInput').addEventListener('input', renderTable);
+
+        // ── Export CSV ────────────────────────────────────────────
+        function downloadCSV() {
+            if (!allInvites || allInvites.length === 0) { alert("Aucune donnée à exporter."); return; }
+            const keys = Array.from(new Set(allInvites.flatMap(Object.keys)));
+            let csvContent = "\uFEFF" + keys.join(';') + "\n";
+            allInvites.forEach(invite => {
+                const row = keys.map(key => {
+                    let v = invite[key] === null || invite[key] === undefined ? "" : String(invite[key]);
+                    return `"${v.replace(/"/g, '""')}"`;
+                });
+                csvContent += row.join(';') + "\n";
+            });
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement("a");
+            link.href = URL.createObjectURL(blob);
+            link.download = "invites_mariage_salomee_ethan.csv";
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+
+        // ── Token ─────────────────────────────────────────────────
+        function generateToken() {
+            return Math.random().toString(36).substr(2, 9) + Math.random().toString(36).substr(2, 9);
+        }
+
+        // ── Ajout rapide ──────────────────────────────────────────
+        async function quickAddGuest(btn) {
+            const nameInput = document.getElementById('quickAddName');
+            const placesInput = document.getElementById('quickAddPlaces');
+            const nom = nameInput.value.trim();
+            const places = parseInt(placesInput.value, 10);
+
+            if (!nom) { alert("Veuillez saisir un nom pour l'invité."); nameInput.focus(); return; }
+
+            btn.textContent = '⏳...';
+            btn.disabled = true;
+
+            try {
+                const { error } = await supabaseClient.from('invites').insert([{
+                    nom, places: isNaN(places) ? 1 : places, token: generateToken(), rsvp: 'en attente'
+                }]);
+                if (error) throw error;
+                nameInput.value = '';
+                placesInput.value = '1';
+                nameInput.focus();
+                loadInvites();
+            } catch (err) {
+                console.error("Erreur d'ajout rapide:", err);
+                alert("Erreur lors de l'ajout de l'invité.");
+            } finally {
+                btn.textContent = '➕ Ajouter';
+                btn.disabled = false;
+            }
+        }
+
+        // ── Modal Modifier ────────────────────────────────────────
+        function openEditModal(token) {
+            const invite = allInvites.find(i => i.token === token);
+            if (!invite) return;
+            document.getElementById('modalTitle').textContent = "Modifier l'invité";
+            document.getElementById('guestToken').value = invite.token;
+            document.getElementById('guestName').value = invite.nom;
+            document.getElementById('guestPlaces').value = invite.places || 1;
+            document.getElementById('guestModal').classList.add('active');
+            setTimeout(() => document.getElementById('guestName').focus(), 100);
+        }
+
+        function closeModal() {
+            document.getElementById('guestModal').classList.remove('active');
+        }
+
+        document.getElementById('guestModal').addEventListener('click', function(e) {
+            if (e.target === this) closeModal();
+        });
+
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') { closeModal(); closeDeleteModal(); }
+        });
+
+        async function saveGuest() {
+            const token = document.getElementById('guestToken').value;
+            const nom = document.getElementById('guestName').value.trim();
+            const places = parseInt(document.getElementById('guestPlaces').value, 10);
+
+            if (!nom) { alert("Veuillez saisir un nom."); return; }
+
+            const saveBtn = document.getElementById('saveBtn');
+            saveBtn.textContent = 'En cours...';
+            saveBtn.disabled = true;
+
+            try {
+                if (token) {
+                    const { error } = await supabaseClient.from('invites').update({ nom, places }).eq('token', token);
+                    if (error) throw error;
+                } else {
+                    const { error } = await supabaseClient.from('invites').insert([{ nom, places, token: generateToken(), rsvp: 'en attente' }]);
+                    if (error) throw error;
+                }
+                closeModal();
+                loadInvites();
+            } catch (err) {
+                console.error("Erreur de sauvegarde:", err);
+                alert("Erreur lors de la sauvegarde.");
+            } finally {
+                saveBtn.textContent = 'Enregistrer';
+                saveBtn.disabled = false;
+            }
+        }
+
+        // ── Modal Suppression ─────────────────────────────────────
+        function deleteGuest(token, nom) {
+            pendingDeleteToken = token;
+            document.getElementById('deleteGuestName').textContent = `"${nom}"`;
+            document.getElementById('deleteModal').classList.add('active');
+
+            // On clone le bouton pour éviter l'accumulation de listeners
+            const oldBtn = document.getElementById('confirmDeleteBtn');
+            const newBtn = oldBtn.cloneNode(true);
+            oldBtn.parentNode.replaceChild(newBtn, oldBtn);
+
+            newBtn.addEventListener('click', async () => {
+                newBtn.textContent = '⏳ Suppression...';
+                newBtn.disabled = true;
+                try {
+                    const { error } = await supabaseClient.from('invites').delete().eq('token', pendingDeleteToken);
+                    if (error) throw error;
+                    closeDeleteModal();
+                    loadInvites();
+                } catch (err) {
+                    console.error("Erreur de suppression:", err);
+                    alert("Erreur lors de la suppression.");
+                    newBtn.textContent = 'Supprimer';
+                    newBtn.disabled = false;
+                }
+            });
+        }
+
+        function closeDeleteModal() {
+            document.getElementById('deleteModal').classList.remove('active');
+            pendingDeleteToken = null;
+        }
+
+        document.getElementById('deleteModal').addEventListener('click', function(e) {
+            if (e.target === this) closeDeleteModal();
+        });
+
+        // ── Init ──────────────────────────────────────────────────
+        checkAuth();
+
+        document.getElementById('logoutBtn').addEventListener('click', async () => {
+            await supabaseClient.auth.signOut();
+            window.location.replace('login.html');
+        });
+    </script>
+
+</body>
+</html>
