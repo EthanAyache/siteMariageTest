@@ -5,8 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Salomée & Ethan - Connexion Admin</title>
     <link href="https://fonts.googleapis.com/css2?family=Lato:wght@300;400&display=swap" rel="stylesheet">
-    <!-- Import de Supabase via CDN pour une utilisation facile en HTML -->
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         body {
             font-family: 'Lato', sans-serif;
@@ -33,6 +31,10 @@
         button { background-color: #D4AF37; color: white; padding: 12px 20px; border: none; border-radius: 30px; cursor: pointer; width: 100%; font-size: 1rem; text-transform: uppercase; letter-spacing: 1px; transition: background 0.3s; }
         button:hover { background-color: #bfa05f; }
         .error { color: #d9534f; margin-top: 15px; font-size: 0.9rem; display: none; }
+        .info { color: #5a8f5a; margin-top: 15px; font-size: 0.9rem; display: none; }
+        .link-btn { background: none; color: #a08a6a; width: auto; padding: 0; margin-top: 18px; font-size: 0.85rem; text-transform: none; letter-spacing: 0; text-decoration: underline; border-radius: 0; }
+        .link-btn:hover { background: none; color: #D4AF37; }
+        .hint { color: #777; font-size: 0.9rem; margin: 0 0 0.5rem; }
     </style>
 </head>
 <body>
@@ -43,16 +45,43 @@
             <input type="password" id="password" placeholder="Mot de passe" required>
             <button type="submit">Se connecter</button>
             <div id="errorMsg" class="error"></div>
+            <button type="button" class="link-btn" id="showForgot">Mot de passe oublié ?</button>
+        </form>
+
+        <form id="forgotForm" hidden>
+            <p class="hint">Entrez votre adresse : nous vous enverrons un lien pour choisir un nouveau mot de passe.</p>
+            <input type="email" id="forgotEmail" placeholder="Adresse e-mail" required>
+            <button type="submit">Envoyer le lien</button>
+            <div id="forgotMsg" class="info"></div>
+            <button type="button" class="link-btn" id="showLogin">← Retour à la connexion</button>
         </form>
     </div>
 
     <script>
-        // INITIALISATION DE SUPABASE
-        const SUPABASE_URL = 'https://cdxtqfhnechqomkpediw.supabase.co';
-        const SUPABASE_ANON_KEY = 'sb_publishable_YnYkAoVGyWkGHnH-Cd-Ddg_wuvbL6Os';
-        const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        async function postJson(url, body) {
+            return fetch(url, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(body)
+            });
+        }
 
-        document.getElementById('loginForm').addEventListener('submit', async (e) => {
+        const loginForm = document.getElementById('loginForm');
+        const forgotForm = document.getElementById('forgotForm');
+
+        document.getElementById('showForgot').addEventListener('click', () => {
+            loginForm.hidden = true;
+            forgotForm.hidden = false;
+            document.getElementById('forgotEmail').value = document.getElementById('email').value;
+            document.getElementById('forgotEmail').focus();
+        });
+
+        document.getElementById('showLogin').addEventListener('click', () => {
+            forgotForm.hidden = true;
+            loginForm.hidden = false;
+        });
+
+        loginForm.addEventListener('submit', async (e) => {
             e.preventDefault();
             const email = document.getElementById('email').value;
             const password = document.getElementById('password').value;
@@ -64,21 +93,43 @@
             submitBtn.disabled = true;
             submitBtn.textContent = 'Connexion en cours...';
 
-            // Tentative de connexion via Supabase
-            const { data, error } = await supabaseClient.auth.signInWithPassword({
-                email: email,
-                password: password
-            });
-
-            if (error) {
+            try {
+                const res = await postJson('api/connexion.php', { email, mot_de_passe: password });
+                if (!res.ok) throw new Error(res.status);
+                // Succès ! Redirection vers la page admin
+                window.location.href = 'admin.html';
+            } catch (error) {
                 console.error("Erreur de connexion :", error);
                 errorMsg.textContent = "Identifiants incorrects ou erreur de connexion.";
                 errorMsg.style.display = 'block';
                 submitBtn.disabled = false;
                 submitBtn.textContent = 'Se connecter';
-            } else {
-                // Succès ! Redirection vers la page admin
-                window.location.href = 'admin.html';
+            }
+        });
+
+        forgotForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const forgotMsg = document.getElementById('forgotMsg');
+            const submitBtn = e.target.querySelector('button[type="submit"]');
+
+            forgotMsg.style.display = 'none';
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Envoi en cours...';
+
+            try {
+                const res = await postJson('api/mot-de-passe-oublie.php', { email: document.getElementById('forgotEmail').value });
+                if (!res.ok) throw new Error(res.status);
+                // même message que le compte existe ou non (voir l'API)
+                forgotMsg.style.color = '';
+                forgotMsg.textContent = "Si un compte existe pour cette adresse, un e-mail vient de vous être envoyé. Pensez à vérifier vos spams.";
+            } catch (error) {
+                console.error("Erreur mot de passe oublié :", error);
+                forgotMsg.style.color = '#d9534f';
+                forgotMsg.textContent = "Une erreur est survenue, merci de réessayer.";
+            } finally {
+                forgotMsg.style.display = 'block';
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Envoyer le lien';
             }
         });
     </script>

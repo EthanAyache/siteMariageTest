@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin — Salomée & Ethan</title>
     <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Lato:wght@300;400;700&display=swap" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -664,36 +663,51 @@
         let currentFilter = 'tous';
         let pendingDeleteToken = null;
 
-        const SUPABASE_URL = 'https://cdxtqfhnechqomkpediw.supabase.co';
-        const SUPABASE_ANON_KEY = 'sb_publishable_YnYkAoVGyWkGHnH-Cd-Ddg_wuvbL6Os';
-        const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        // ── API (dossier api/, session PHP) ───────────────────────
+        async function api(url, method = 'GET', body) {
+            const res = await fetch(url, {
+                method,
+                headers: body ? { 'Content-Type': 'application/json' } : {},
+                body: body ? JSON.stringify(body) : undefined
+            });
+            if (res.status === 401) {
+                window.location.replace('login.html');
+                throw new Error('Non connecté');
+            }
+            const data = await res.json().catch(() => ({}));
+            if (!res.ok) throw new Error(data.erreur || res.statusText);
+            return data;
+        }
+
+        // Les messages viennent des invités : on les échappe avant innerHTML
+        function esc(str) {
+            const div = document.createElement('div');
+            div.textContent = str == null ? '' : String(str);
+            return div.innerHTML;
+        }
 
         // ── Auth ──────────────────────────────────────────────────
         async function checkAuth() {
-            const { data: { session } } = await supabaseClient.auth.getSession();
-            if (!session) {
-                window.location.replace('login.html');
-            } else {
-                document.body.style.display = 'block';
-                loadInvites();
+            try {
+                await api('api/session.php');
+            } catch (err) {
+                return;
             }
+            document.body.style.display = 'block';
+            loadInvites();
         }
 
         // ── Chargement ────────────────────────────────────────────
         async function loadInvites() {
             try {
-                const { data, error } = await supabaseClient
-                    .from('invites')
-                    .select('*')
-                    .order('nom', { ascending: true });
-                if (error) throw error;
-                allInvites = data || [];
+                const { invites } = await api('api/invites.php');
+                allInvites = invites || [];
                 updateStats();
                 renderTable();
                 renderMessages();
                 renderDetails();
             } catch (err) {
-                console.error("Erreur Supabase:", err);
+                console.error("Erreur de chargement:", err);
                 document.getElementById('tableBody').innerHTML =
                     `<tr><td colspan="5" class="empty">Erreur de chargement.</td></tr>`;
             }
@@ -734,7 +748,7 @@
                 const lien = `${SITE_URL}/index.html?token=${invite.token}`;
                 return `
                 <tr class="row-anim" style="animation-delay:${i * 0.04}s">
-                    <td><strong>${invite.nom}</strong></td>
+                    <td><strong>${esc(invite.nom)}</strong></td>
                     <td>${invite.places} place${invite.places > 1 ? 's' : ''}</td>
                     <td>${getBadge(invite.rsvp)}</td>
                     <td>
@@ -773,10 +787,10 @@
             grid.innerHTML = avecMessage.map((invite, i) => `
                 <div class="message-card row-anim" style="animation-delay:${i * 0.06}s">
                     <div class="message-card-header">
-                        <span class="message-author">${invite.nom}</span>
+                        <span class="message-author">${esc(invite.nom)}</span>
                         ${getBadge(invite.rsvp)}
                     </div>
-                    <p class="message-text">"${invite.message}"</p>
+                    <p class="message-text">"${esc(invite.message)}"</p>
                 </div>
             `).join('');
         }
@@ -803,7 +817,7 @@
                 return `
                 <div class="message-card row-anim" style="animation-delay:${i * 0.06}s">
                     <div class="message-card-header" style="margin-bottom: 0.5rem;">
-                        <span class="message-author">${invite.nom}</span>
+                        <span class="message-author">${esc(invite.nom)}</span>
                         ${getBadge(invite.rsvp)}
                     </div>
                     <div class="detail-line"><span>Mairie & After :</span> <strong>${textMairie}</strong></div>
@@ -862,11 +876,6 @@
             document.body.removeChild(link);
         }
 
-        // ── Token ─────────────────────────────────────────────────
-        function generateToken() {
-            return Math.random().toString(36).substr(2, 9) + Math.random().toString(36).substr(2, 9);
-        }
-
         // ── Ajout rapide ──────────────────────────────────────────
         async function quickAddGuest(btn) {
             const nameInput = document.getElementById('quickAddName');
@@ -880,10 +889,7 @@
             btn.disabled = true;
 
             try {
-                const { error } = await supabaseClient.from('invites').insert([{
-                    nom, places: isNaN(places) ? 1 : places, token: generateToken(), rsvp: 'en attente'
-                }]);
-                if (error) throw error;
+                await api('api/invites.php', 'POST', { nom, places: isNaN(places) ? 1 : places });
                 nameInput.value = '';
                 placesInput.value = '1';
                 nameInput.focus();
@@ -934,11 +940,9 @@
 
             try {
                 if (token) {
-                    const { error } = await supabaseClient.from('invites').update({ nom, places }).eq('token', token);
-                    if (error) throw error;
+                    await api('api/invites.php', 'PUT', { token, nom, places });
                 } else {
-                    const { error } = await supabaseClient.from('invites').insert([{ nom, places, token: generateToken(), rsvp: 'en attente' }]);
-                    if (error) throw error;
+                    await api('api/invites.php', 'POST', { nom, places });
                 }
                 closeModal();
                 loadInvites();
@@ -966,8 +970,7 @@
                 newBtn.textContent = '⏳ Suppression...';
                 newBtn.disabled = true;
                 try {
-                    const { error } = await supabaseClient.from('invites').delete().eq('token', pendingDeleteToken);
-                    if (error) throw error;
+                    await api('api/invites.php', 'DELETE', { token: pendingDeleteToken });
                     closeDeleteModal();
                     loadInvites();
                 } catch (err) {
@@ -992,7 +995,7 @@
         checkAuth();
 
         document.getElementById('logoutBtn').addEventListener('click', async () => {
-            await supabaseClient.auth.signOut();
+            await api('api/deconnexion.php', 'POST', {}).catch(() => {});
             window.location.replace('login.html');
         });
     </script>

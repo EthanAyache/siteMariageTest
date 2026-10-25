@@ -9,3 +9,6 @@ __tmp-*.html
 
 # Worktrees Claude Code
 .claude/worktrees/
+
+# Identifiants de la base : jamais dans le repo
+.env

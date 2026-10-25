@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="robots" content="noindex">
+    <title>Salomée & Ethan - Nouveau mot de passe</title>
+    <link href="https://fonts.googleapis.com/css2?family=Lato:wght@300;400&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Lato', sans-serif;
+            background-color: #f3eeeb;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .login-box {
+            background: white;
+            padding: 3rem;
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+            text-align: center;
+            width: 100%;
+            max-width: 350px;
+            border: 1px solid #D4AF37;
+        }
+        h2 { color: #D4AF37; margin-bottom: 2rem; font-weight: 400; }
+        input { display: block; width: 100%; margin: 15px 0; padding: 12px; box-sizing: border-box; border: 1px solid #ccc; border-radius: 4px; font-family: 'Lato', sans-serif; }
+        input:focus { border-color: #D4AF37; outline: none; }
+        button { background-color: #D4AF37; color: white; padding: 12px 20px; border: none; border-radius: 30px; cursor: pointer; width: 100%; font-size: 1rem; text-transform: uppercase; letter-spacing: 1px; transition: background 0.3s; }
+        button:hover { background-color: #bfa05f; }
+        .error { color: #d9534f; margin-top: 15px; font-size: 0.9rem; display: none; }
+        .info { color: #5a8f5a; font-size: 0.95rem; }
+        a { color: #a08a6a; font-size: 0.9rem; }
+        a:hover { color: #D4AF37; }
+    </style>
+</head>
+<body>
+    <div class="login-box">
+        <h2>Nouveau mot de passe</h2>
+        <form id="resetForm">
+            <input type="password" id="password" placeholder="Nouveau mot de passe (8 caractères min.)" minlength="8" autocomplete="new-password" required>
+            <input type="password" id="password2" placeholder="Confirmer le mot de passe" minlength="8" autocomplete="new-password" required>
+            <button type="submit">Enregistrer</button>
+            <div id="errorMsg" class="error"></div>
+        </form>
+        <div id="doneMsg" hidden>
+            <p class="info">Votre mot de passe a bien été changé.</p>
+            <a href="login.html">Se connecter</a>
+        </div>
+    </div>
+
+    <script>
+        const token = new URLSearchParams(window.location.search).get('token');
+        const form = document.getElementById('resetForm');
+        const errorMsg = document.getElementById('errorMsg');
+
+        function showError(message) {
+            errorMsg.innerHTML = message;
+            errorMsg.style.display = 'block';
+        }
+
+        if (!token) {
+            form.querySelectorAll('input, button').forEach(el => el.disabled = true);
+            showError('Lien incomplet. <a href="login.html">Refaire une demande</a>');
+        }
+
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const password = document.getElementById('password').value;
+            const submitBtn = e.target.querySelector('button[type="submit"]');
+
+            errorMsg.style.display = 'none';
+            if (password !== document.getElementById('password2').value) {
+                showError('Les deux mots de passe ne sont pas identiques.');
+                return;
+            }
+
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Enregistrement...';
+
+            try {
+                const res = await fetch('api/reinitialiser-mdp.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ token, mot_de_passe: password })
+                });
+                const data = await res.json().catch(() => ({}));
+                if (!res.ok) {
+                    showError((data.erreur || 'Une erreur est survenue, merci de réessayer.') + ' <a href="login.html">Retour</a>');
+                    return;
+                }
+                form.hidden = true;
+                document.getElementById('doneMsg').hidden = false;
+            } catch (error) {
+                console.error('Erreur de réinitialisation :', error);
+                showError('Une erreur est survenue, merci de réessayer.');
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Enregistrer';
+            }
+        });
+    </script>
+</body>
+</html>

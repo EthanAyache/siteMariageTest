@@ -1,0 +1,7 @@
+# Fichiers à ne jamais servir aux visiteurs :
+#  - tout ce qui commence par un point : .env (identifiants de la base), .git…
+#    (sauf .well-known, utilisé pour les certificats HTTPS)
+#  - le schéma SQL, les CSV d'invités et les scripts en ligne de commande
+RedirectMatch 404 /\.(?!well-known/)
+RedirectMatch 404 \.(sql|csv)$
+RedirectMatch 404 /scripts/

@@ -36,8 +36,7 @@ Fournir une plateforme élégante, responsive et fonctionnelle pour :
 - **Poids des images** : `accueil.png` (2,8 Mo) et `fond.png` (2,5 Mo) gagneraient à passer en WebP.
 
 ### ⚙️ Développement & Backend
-- **Vérifier le projet Supabase** : l'URL `ingtrfzjxbtjzisctuyo.supabase.co` ne résout plus (voir la section Administration).
-- **Règles RLS** : la clé publiable est visible dans le HTML ; ce sont les policies de la table `invites` qui protègent réellement les données.
+- **Envoi des e-mails** : « mot de passe oublié » utilise `mail()` de PHP, qui marche sur la plupart des hébergeurs mais pas sous WAMP en local.
 - **Section Informations Pratiques** : (Optionnel) adresses, parkings, liste de mariage.
 
 ---
@@ -45,8 +44,7 @@ Fournir une plateforme élégante, responsive et fonctionnelle pour :
 ## 🛠 Technologies utilisées
 * **Frontend** : HTML5, CSS3 (Flexbox, CSS Animations), Vanilla JavaScript.
 * **Polices** : Google Fonts (`Great Vibes`, `Lato`, `WindSong`, `Cormorant Garamond`).
-* **Backend (à venir)** : Supabase pour la gestion de la base de données.
-* **Environnement** : Node.js (via `package.json` pour la gestion des dépendances).
+* **Backend** : API en PHP (dossier `api/`) et base MySQL. L'ancien Supabase n'est plus utilisé.
 
 ---
 
@@ -59,7 +57,11 @@ l'invitation complète.
 |---|---|
 | `index.html` | Le site public. Accepte `?token=XXX` pour personnaliser le RSVP. |
 | `admin.html` | Tableau de bord : liste des invités, réponses, messages. |
-| `login.html` | Connexion à l'administration (Supabase Auth). |
+| `login.html` | Connexion à l'administration, avec « Mot de passe oublié ? ». |
+| `reinitialiser.html` | Page du lien reçu par e-mail pour choisir un nouveau mot de passe. |
+| `api/` | API PHP : comptes, session, invités, RSVP. Lit la config dans `.env`. |
+| `mysql/schema.sql` | Les tables à importer dans phpMyAdmin. |
+| `scripts/creer-compte.php` | Crée un compte admin ou marié (ligne de commande). |
 | `image/enveloppe/` | Assets du site : enveloppe, cachet, artwork, ornements. |
 | `archive/` | Anciennes versions conservées en sauvegarde (voir plus bas). |
 
@@ -98,36 +100,66 @@ l'admin (`admin.html` construit `.../index.html?token=XXX`).
 
 ---
 
+## 🗄 Base de données et comptes
+
+1. Dans phpMyAdmin, sélectionner la base `mariage` et importer `mysql/schema.sql`.
+   Il crée les tables `invites`, `comptes` et `reinitialisations_mdp`.
+2. Copier les identifiants de la base dans le fichier `.env` à la racine (jamais dans
+   le repo, il est dans `.gitignore`) :
+
+   ```
+   DB_HOST=127.0.0.1
+   DB_PORT=3306
+   DB_NAME=mariage
+   DB_USER=mariage
+   DB_PASSWORD=...
+   SITE_URL=https://ton-domaine.fr
+   MAIL_FROM=
+   ```
+
+   Sur l'hébergeur, le `.env` n'arrive pas avec le repo : le créer à la main à la
+   racine du site, ou mettre ces valeurs dans ses variables d'environnement.
+   Le `.htaccess` empêche les visiteurs de le télécharger.
+3. Créer les comptes. Deux rôles, qui ont tous les deux accès au tableau de bord :
+   `admin` (administrateur du site) et `marie` (les mariés).
+
+   ```bash
+   php scripts/creer-compte.php ethan@exemple.fr "Ethan" admin
+   php scripts/creer-compte.php salomee@exemple.fr "Salomée" marie
+   ```
+
+   Le mot de passe est demandé ensuite. Relancer la commande sur une adresse existante
+   change son mot de passe. Si l'hébergeur n'a pas de terminal, ajouter `--sql` à la
+   fin : le script affiche une requête à coller dans l'onglet SQL de son phpMyAdmin.
+
+### Mot de passe oublié
+
+Le lien « Mot de passe oublié ? » de `login.html` envoie un e-mail avec un lien vers
+`reinitialiser.html`, valable 1 heure et utilisable une seule fois. Sous WAMP, PHP ne
+sait pas envoyer d'e-mail : le lien est alors écrit dans le log d'erreurs PHP.
+
 ## 🖥 Lancer le site en local
 
-Le site est en HTML/CSS/JS pur : il n'y a **pas de build** à faire. Il suffit d'un
-petit serveur statique (ouvrir les fichiers en double-clic via `file://` casserait
-Supabase et l'autoplay de la musique).
-
-Depuis le dossier du projet :
+Le site a besoin de PHP pour son API. Démarrer WAMP (pour MySQL), puis depuis le
+dossier du projet :
 
 ```bash
-npx serve -l 5173 .
+php -S localhost:8000
 ```
 
-Puis ouvrir **http://localhost:5173**
+Puis ouvrir **http://localhost:8000**
 
-> Le port 5173 est utilisé plutôt que le 3000 pour éviter les conflits avec
-> d'autres projets. N'importe quel port libre fait l'affaire.
+> ⚠️ `npx serve` ne suffit plus : il ne sait pas exécuter le PHP de `api/`.
 
 ### Pages disponibles
 
 | Page | URL |
 |---|---|
-| Site (sans RSVP) | http://localhost:5173/ |
-| Site personnalisé invité | http://localhost:5173/?token=XXX |
-| Connexion admin | http://localhost:5173/login.html |
-| Dashboard admin | http://localhost:5173/admin.html |
+| Site (sans RSVP) | http://localhost:8000/ |
+| Site personnalisé invité | http://localhost:8000/?token=XXX |
+| Connexion admin | http://localhost:8000/login.html |
+| Dashboard admin | http://localhost:8000/admin.html |
 
 ⚠️ Le **token** en paramètre d'URL est ce qui déclenche la section RSVP. Sans lui,
 le site s'affiche mais le formulaire reste masqué. Les tokens se récupèrent depuis
 la page admin, qui fournit le lien complet à copier.
-
-ℹ️ Aucune variable d'environnement n'est nécessaire : les pages appellent Supabase
-directement depuis le navigateur avec la clé publiable.
-

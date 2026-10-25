@@ -8,7 +8,6 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Pinyon+Script&display=swap" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         /* ============================================================
            Palette « Champagne » (reprise du design)
@@ -1098,13 +1097,10 @@ button:focus-visible,a:focus-visible,select:focus-visible,textarea:focus-visible
             el('itineraire').addEventListener('click', function (e) { e.preventDefault(); });
 
             /* ============================================================
-               RSVP relié au système admin (Supabase, table « invites »).
+               RSVP relié au système admin (API PHP, table MySQL « invites »).
                L'admin distribue des liens index.html?token=XXX ; sans token
                reconnu, le site s'affiche mais la section RSVP reste masquée.
                ============================================================ */
-            var SUPABASE_URL = 'https://cdxtqfhnechqomkpediw.supabase.co';
-            var SUPABASE_ANON_KEY = 'sb_publishable_YnYkAoVGyWkGHnH-Cd-Ddg_wuvbL6Os';
-
             var form = el('rsvpForm'), done = el('rsvpDone'), rsvpSection = el('rsvp');
             var currentToken = null, currentPlaces = 1;
 
@@ -1152,21 +1148,17 @@ button:focus-visible,a:focus-visible,select:focus-visible,textarea:focus-visible
                 }
             }
 
-            var supa = null;
-            try {
-                if (window.supabase) supa = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-            } catch (e) { supa = null; }
-
             function loadInvite() {
                 var token = new URLSearchParams(window.location.search).get('token');
-                if (!token || !supa) { hideRsvp(); return; }
+                if (!token) { hideRsvp(); return; }
 
-                /* get_invite : fonction SECURITY DEFINER. Le rôle anon n'a aucun
-                   accès direct à la table, il faut connaître le token. */
-                supa.rpc('get_invite', { p_token: token })
-                    .then(function (res) {
-                        var inv = res.data && res.data.length ? res.data[0] : null;
-                        if (res.error || !inv) { hideRsvp(); return; }
+                /* api/invite.php ne renvoie que l'invité du token : la liste
+                   complète n'est accessible qu'aux comptes connectés. */
+                fetch('api/invite.php?token=' + encodeURIComponent(token))
+                    .then(function (res) { return res.ok ? res.json() : null; })
+                    .then(function (data) {
+                        var inv = data && data.invite;
+                        if (!inv) { hideRsvp(); return; }
                         currentToken = token;
                         currentPlaces = inv.places || 1;
 
@@ -1203,7 +1195,7 @@ button:focus-visible,a:focus-visible,select:focus-visible,textarea:focus-visible
                 if (!houppa) { fieldError('errHouppa', 'Merci de sélectionner une option.'); ok = false; }
                 else if (houppa.value === 'oui' && !el('nbHouppa').value) { fieldError('errHouppa', 'Merci de préciser le nombre de personnes.'); ok = false; }
 
-                if (!ok || !currentToken || !supa) {
+                if (!ok || !currentToken) {
                     if (ok && !currentToken) fieldError('errGlobal', 'Lien invalide : réponse impossible à enregistrer.');
                     return;
                 }
@@ -1216,16 +1208,20 @@ button:focus-visible,a:focus-visible,select:focus-visible,textarea:focus-visible
                    Le serveur recalcule cette valeur : c'est lui qui fait foi. */
                 var reponse = (mairie.value === 'non' && houppa.value === 'non') ? 'decline' : 'confirme';
 
-                supa.rpc('repondre_invite', {
-                    p_token: currentToken,
-                    p_mairie: mairie.value,
-                    p_nb_mairie: mairie.value === 'oui' ? parseInt(el('nbMairie').value, 10) : 0,
-                    p_houppa: houppa.value,
-                    p_nb_houppa: houppa.value === 'oui' ? parseInt(el('nbHouppa').value, 10) : 0,
-                    p_message: el('guestMessage').value
+                fetch('api/repondre.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        token: currentToken,
+                        mairie: mairie.value,
+                        nb_mairie: mairie.value === 'oui' ? parseInt(el('nbMairie').value, 10) : 0,
+                        houppa: houppa.value,
+                        nb_houppa: houppa.value === 'oui' ? parseInt(el('nbHouppa').value, 10) : 0,
+                        message: el('guestMessage').value
+                    })
                 })
                     .then(function (res) {
-                        if (res.error) throw res.error;
+                        if (!res.ok) throw new Error(res.status);
                         showThanks(reponse);
                     })
                     .catch(function () {
