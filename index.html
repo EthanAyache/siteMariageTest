@@ -3,7 +3,7 @@
 
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>Salomée & Ethan — Votre invitation</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -729,6 +729,8 @@ button:focus-visible,a:focus-visible,select:focus-visible,textarea:focus-visible
 .panel::before,.section::before,.footer::before{content:'';position:absolute;inset:0;z-index:-1;pointer-events:none;background:url('image/enveloppe/fond.png') center center / 100% auto no-repeat;-webkit-mask-image:linear-gradient(to bottom,transparent,#000 140px,#000 calc(100% - 140px),transparent);mask-image:linear-gradient(to bottom,transparent,#000 140px,#000 calc(100% - 140px),transparent)}
 .footer::before{background-position:center bottom;-webkit-mask-image:linear-gradient(to bottom,transparent,#000);mask-image:linear-gradient(to bottom,transparent,#000)}
 .envelope-lining{position:absolute;inset:0;display:block;width:941px;height:1672px;pointer-events:none}.env-img{filter:drop-shadow(0 12px 22px rgba(120,104,74,.14))}.throat-light{background:radial-gradient(80% 70% at 50% 20%,rgba(255,250,240,.35),transparent 70%)}.sheet{border:1px solid #d9ccb4;box-shadow:0 7px 18px rgba(90,74,48,.12)}
+
+@media(max-width:600px) and (orientation:portrait){.fit{background:#eee5d6}.ground{background:#eee5d6}.env-img{filter:none}.hint{bottom:105px}.skip-envelope{bottom:155px}}
 </style>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+Hebrew:wght@400&display=swap" rel="stylesheet"></head>
 
@@ -779,7 +781,7 @@ button:focus-visible,a:focus-visible,select:focus-visible,textarea:focus-visible
 
                 <div class="site-inner">
                     <div class="hero">
-                        <div class="hero-art"><svg class="arch-verse" viewBox="0 0 1024 1536" role="img" aria-labelledby="archVerseTitle"><title id="archVerseTitle">אני לדודי ודודי לי</title><defs><path id="innerArchVerse" d="M 247,625 C 247,365 380,282 512,282 C 644,282 777,365 777,625"/></defs><text lang="he" direction="rtl" text-anchor="middle"><textPath href="#innerArchVerse" startOffset="50%" textLength="580" lengthAdjust="spacing">אני לדודי ודודי לי</textPath></text></svg>
+                        <div class="hero-art"><svg class="arch-verse" viewBox="0 0 1024 1536" role="img" aria-labelledby="archVerseTitle"><title id="archVerseTitle">אני לדודי ודודי לי</title><g aria-hidden="true"><text x="767.95" y="478.31" transform="rotate(71.44 767.95 478.31)" text-anchor="middle" direction="ltr">א</text><text x="751.07" y="436.15" transform="rotate(62.31 751.07 436.15)" text-anchor="middle" direction="ltr">נ</text><text x="728.13" y="397.39" transform="rotate(53.18 728.13 397.39)" text-anchor="middle" direction="ltr">י</text><text x="682.02" y="346.27" transform="rotate(39.03 682.02 346.27)" text-anchor="middle" direction="ltr">ל</text><text x="646.58" y="320.33" transform="rotate(29.90 646.58 320.33)" text-anchor="middle" direction="ltr">ד</text><text x="607.74" y="300.71" transform="rotate(20.77 607.74 300.71)" text-anchor="middle" direction="ltr">ו</text><text x="566.47" y="287.92" transform="rotate(11.64 566.47 287.92)" text-anchor="middle" direction="ltr">ד</text><text x="523.83" y="282.28" transform="rotate(2.51 523.83 282.28)" text-anchor="middle" direction="ltr">י</text><text x="457.53" y="287.92" transform="rotate(-11.64 457.53 287.92)" text-anchor="middle" direction="ltr">ו</text><text x="416.26" y="300.71" transform="rotate(-20.77 416.26 300.71)" text-anchor="middle" direction="ltr">ד</text><text x="377.42" y="320.33" transform="rotate(-29.90 377.42 320.33)" text-anchor="middle" direction="ltr">ו</text><text x="341.98" y="346.27" transform="rotate(-39.03 341.98 346.27)" text-anchor="middle" direction="ltr">ד</text><text x="310.86" y="377.87" transform="rotate(-48.16 310.86 377.87)" text-anchor="middle" direction="ltr">י</text><text x="272.93" y="436.15" transform="rotate(-62.31 272.93 436.15)" text-anchor="middle" direction="ltr">ל</text><text x="256.05" y="478.31" transform="rotate(-71.44 256.05 478.31)" text-anchor="middle" direction="ltr">י</text></g></svg>
                             <div class="hero-txt">
                                 <div class="names">Salomée &amp; Ethan</div>
                                 <div class="rule"></div>
@@ -928,7 +930,8 @@ button:focus-visible,a:focus-visible,select:focus-visible,textarea:focus-visible
             function resize() {
                 var w = fit.clientWidth || window.innerWidth || 360;
                 var h = fit.clientHeight || window.innerHeight || 640;
-                var sc = Math.min(w / 941, h / 1672);
+                var mobileEnvelope = w <= 600 && h > w;
+                var sc = mobileEnvelope ? Math.max(w / 911, h / 1640) : Math.min(w / 941, h / 1672);
                 if (!(sc > 0)) sc = 0.3;
                 stage.style.transform = 'translate(-50%,-50%) scale(' + sc + ')';
 
