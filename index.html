@@ -918,16 +918,8 @@ button:focus-visible,a:focus-visible,select:focus-visible,textarea:focus-visible
             fit.appendChild(site);
             var siteScale = 1;
 
-            /* ---- timeline (valeurs du design, rythme « Équilibré ») ---- */
-            var D = {
-                openS: 350, openE: 1600,
-                sheetS: 800, sheetE: 2000,
-                downS: 1900, downE: 2700,
-                fadeS: 2600, fadeE: 3500,
-                siteS: 3200, siteE: 4100,
-                dur: 4300, sheenE: 850,
-                downPx: 620, maxA: 104
-            };
+            /* Ouverture discrète du rabat, suivie d’un fondu direct. */
+            var D = { openS: 0, openE: 2200, siteS: 1300, siteE: 3400, dur: 3400, maxA: 32, liftPx: 24 };
 
             var clamp = function (x, a, b) { return Math.max(a, Math.min(b, x)); };
             var lerp = function (a, b, t) { return a + (b - a) * t; };
@@ -964,42 +956,24 @@ button:focus-visible,a:focus-visible,select:focus-visible,textarea:focus-visible
 
             /* ---- rendu d'une image de l'animation ---- */
             function render(ms) {
-                var a = 0;
-                if (ms > D.openS) a = ease(clamp((ms - D.openS) / (D.openE - D.openS), 0, 1)) * D.maxA;
-
-                var dn = ease(clamp((ms - D.downS) / (D.downE - D.downS), 0, 1)) * D.downPx;
-                var slide = 'translateY(' + dn + 'px)';
-                envBack.style.transform = slide;
-
-                /* la fenêtre descend avec l'enveloppe pour libérer le carton */
-                var d = dn / 1672 * 100;
-                sheetWin.style.clipPath = 'polygon(0% 0%, 100% 0%, 100% ' + (26.2 + d) + '%, 50.16% ' + (64 + d) + '%, 0% ' + (26.2 + d) + '%)';
-
-                flap.style.transform = slide + ' rotateX(' + a + 'deg)';
-                flap.style.opacity = String(1 - clamp((a - 18) / (60 - 18), 0, 1));
-
-                var b = lerp(1, 0.82, clamp(a / D.maxA, 0, 1));
-                flapPaper.style.filter = 'drop-shadow(0 3px 5px rgba(90,74,48,0.12))';
-
-                throatLight.style.opacity = String(clamp(a / 55, 0, 1) * 0.4);
-
-                var ps = ease(clamp((ms - D.sheetS) / (D.sheetE - D.sheetS), 0, 1));
-                sheet.style.opacity = String(ps);
-                sheet.style.transform = 'translateY(' + lerp(46, 0, ps) + '%)';
-
-                var sp = clamp(ms / D.sheenE, 0, 1);
-                sheen.style.opacity = String(ms < D.sheenE ? Math.sin(sp * Math.PI) * 0.5 : 0);
-                sheen.style.transform = 'translate(' + lerp(-26, 16, sp) + '%,' + lerp(-8, 10, sp) + '%)';
-
-                veil.style.opacity = String(ease(clamp((ms - D.fadeS) / (D.fadeE - D.fadeS), 0, 1)));
-
-                var c = clamp((ms - D.fadeS) / (D.fadeE - D.fadeS), 0, 1);
-                flash.style.opacity = String(Math.sin(c * Math.PI) * 0.4);
-
-                var e = ease(clamp((ms - D.siteS) / (D.siteE - D.siteS), 0, 1));
-                site.style.opacity = String(e);
-                site.style.transform = 'translateY(' + lerp(22, 0, e) + 'px) scale(' + (siteScale * lerp(1.03, 1, e)) + ')';
-                site.style.pointerEvents = e > 0.9 ? 'auto' : 'none';
+                var opening = ease(clamp((ms - D.openS) / (D.openE - D.openS), 0, 1));
+                var fade = ease(clamp((ms - D.siteS) / (D.siteE - D.siteS), 0, 1));
+                // Quelques pixels seulement : le sceau conserve ses proportions.
+                envBack.style.transform = 'none';
+                flap.style.transform = 'translateY(' + (-D.liftPx * opening) + 'px) rotateX(' + (D.maxA * opening) + 'deg)';
+                flap.style.opacity = '1';
+                flapPaper.style.filter = 'drop-shadow(0 3px 4px rgba(90,74,48,' + (0.08 + opening * 0.06) + '))';
+                throatLight.style.opacity = String(opening * 0.08);
+                // Aucun carton qui jaillit, aucun flash ni déplacement de la page.
+                sheet.style.opacity = '0';
+                sheet.style.transform = 'none';
+                sheen.style.opacity = '0';
+                veil.style.opacity = '0';
+                flash.style.opacity = '0';
+                document.querySelector('.scene').style.opacity = String(1 - fade);
+                site.style.opacity = String(fade);
+                site.style.transform = 'scale(' + siteScale + ')';
+                site.style.pointerEvents = fade >= 0.98 ? 'auto' : 'none';
             }
 
             /* ---- boucle ---- */
@@ -1037,7 +1011,7 @@ button:focus-visible,a:focus-visible,select:focus-visible,textarea:focus-visible
                     return;
                 }
                 startT0 = performance.now();
-                startOffset = Math.max(0, D.openS - 250);
+                startOffset = 0;
             }
 
             tap.addEventListener('click', startOpen);
@@ -1271,6 +1245,9 @@ button:focus-visible,a:focus-visible,select:focus-visible,textarea:focus-visible
 </body>
 
 </html>
+
+
+
 
 
 
